@@ -26,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DemoModeToggle } from '@/components/DemoModeToggle';
 import { useDemoModeFilter } from '@/hooks/useDemoModeFilter';
 import { FloatingChatbot } from '@/components/FloatingChatbot';
+import { AIInterviewWidget } from '@/components/hr/AIInterviewWidget';
 
 const HRDashboard = () => {
   const { user, signOut } = useAuth();
@@ -308,8 +309,12 @@ const HRDashboard = () => {
           </TabsContent>
 
           <TabsContent value="interviews" className="space-y-6">
+            {/* AI Interview Management Widget */}
+            <AIInterviewWidget />
+
+            {/* Quick Actions */}
             <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-6">Interview Management</h2>
+              <h2 className="text-2xl font-bold mb-6">Interview Actions</h2>
               <div className="grid gap-3">
                 <Button 
                   className="w-full justify-start" 

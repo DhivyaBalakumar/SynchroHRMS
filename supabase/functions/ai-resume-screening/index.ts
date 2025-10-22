@@ -216,7 +216,7 @@ Be objective, thorough, and focus on matching the candidate's qualifications to 
           candidateName: resume.candidate_name,
           candidateEmail: resume.email,
           jobTitle: resume.job_roles?.title || resume.position_applied,
-          interviewLink: 'https://your-app.com/interview', // Will be updated with actual link
+          interviewLink: 'https://your-app.com/interview',
           tokenExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleString()
         }),
       });
@@ -229,6 +229,32 @@ Be objective, thorough, and focus on matching the candidate's qualifications to 
           .update({ selection_email_sent: true })
           .eq('id', resume_id);
         console.log('Selection email sent successfully');
+      }
+
+      // Only schedule automated interview for real candidates
+      if (resume.source === 'real') {
+        console.log('Scheduling automated interview for real candidate...');
+        
+        const interviewResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/schedule-automated-interview`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            resumeId: resume_id,
+            candidateName: resume.candidate_name,
+            candidateEmail: resume.email,
+            jobTitle: resume.job_roles?.title || resume.position_applied,
+            delayHours: 0, // Schedule immediately
+          }),
+        });
+
+        if (!interviewResponse.ok) {
+          console.error('Failed to schedule automated interview');
+        } else {
+          console.log('Automated interview scheduled successfully');
+        }
       }
     } else {
       console.log('Sending rejection email...');
