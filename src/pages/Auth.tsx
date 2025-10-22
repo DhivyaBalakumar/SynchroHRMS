@@ -36,6 +36,7 @@ const Auth = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
   useEffect(() => {
     const mode = searchParams.get('mode');
@@ -47,24 +48,26 @@ const Auth = () => {
       setSelectedRole(role);
     }
 
-    // Redirect logged-in users to their dashboard
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (roleData?.role) {
-          navigate(`/dashboard/${roleData.role}`);
+    // Redirect logged-in users to their dashboard (but not during active signup)
+    if (!isSigningUp) {
+      const checkSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (roleData?.role) {
+            navigate(`/dashboard/${roleData.role}`);
+          }
         }
-      }
-    };
-    
-    checkSession();
-  }, [searchParams, navigate]);
+      };
+      
+      checkSession();
+    }
+  }, [searchParams, navigate, isSigningUp]);
 
   const handleEmailBlur = () => {
     if (email) {
@@ -185,6 +188,9 @@ const Auth = () => {
 
         navigate(`/dashboard/${userRole}`);
       } else {
+        // Set signup flag to prevent useEffect interference
+        setIsSigningUp(true);
+        
         // Sign up new user
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -199,6 +205,7 @@ const Auth = () => {
         });
 
         if (error) {
+          setIsSigningUp(false);
           if (error.message?.includes('already registered') || error.message?.includes('User already exists')) {
             throw new Error('This email is already registered. Please log in instead.');
           }
@@ -206,6 +213,7 @@ const Auth = () => {
         }
 
         if (!data.user) {
+          setIsSigningUp(false);
           throw new Error('Failed to create account. Please try again.');
         }
 
@@ -220,6 +228,7 @@ const Auth = () => {
           });
 
         if (roleError) {
+          setIsSigningUp(false);
           throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
         }
 
@@ -228,10 +237,12 @@ const Auth = () => {
           description: 'Account created successfully!',
         });
 
-        // Clear loading state before navigation
-        setLoading(false);
+        // Small delay to ensure role is committed
+        await new Promise(resolve => setTimeout(resolve, 100));
         
-        // Navigate to dashboard
+        // Clear states and navigate
+        setLoading(false);
+        setIsSigningUp(false);
         navigate(`/dashboard/${selectedRole}`, { replace: true });
       }
     } catch (error: any) {
