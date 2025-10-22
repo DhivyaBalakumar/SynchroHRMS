@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, MessageSquare, BarChart3, FileText } from 'lucide-react';
+import { LogOut, MessageSquare, BarChart3, FileText, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { TeamRosterWidget } from '@/components/manager/TeamRosterWidget';
@@ -11,24 +11,94 @@ import { SkillsManagementWidget } from '@/components/manager/SkillsManagementWid
 import { ProjectTasksWidget } from '@/components/manager/ProjectTasksWidget';
 import { AIInsightsWidget } from '@/components/manager/AIInsightsWidget';
 import { FloatingChatbot } from '@/components/FloatingChatbot';
+import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ManagerDashboard = () => {
   const { user, signOut } = useAuth();
+  const [managerId, setManagerId] = useState<string | null>(null);
   
-  // Dummy data for display
-  const manager = {
-    id: 'dummy-manager-1',
-    full_name: 'John Manager',
-    email: user?.email || 'manager@company.com',
-    position: 'Team Lead',
-    department: 'Engineering'
-  };
+  // Fetch manager profile
+  const { data: manager, isLoading: loadingManager } = useQuery({
+    queryKey: ['manager-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('employees')
+        .select('id, full_name, email, position, departments(name)')
+        .eq('user_id', user.id)
+        .single();
 
-  const team = {
-    id: 'dummy-team-1',
-    name: 'Alpha Engineering Team',
-    team_leader_id: manager.id
-  };
+      if (error) throw error;
+      setManagerId(data.id);
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
+  // Real-time updates for team changes
+  useEffect(() => {
+    if (!managerId) return;
+
+    const channel = supabase
+      .channel('manager-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'team_members',
+          filter: `manager_id=eq.${managerId}`
+        },
+        () => {
+          // Trigger re-fetch of team data
+          console.log('Team member update detected');
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'employees'
+        },
+        () => {
+          console.log('Employee update detected');
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [managerId]);
+
+  if (loadingManager) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5">
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-20 w-full mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Skeleton className="h-64 lg:col-span-2" />
+            <Skeleton className="h-64" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!manager) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Manager Profile Not Found</h2>
+          <p className="text-muted-foreground mb-6">Please contact HR to set up your manager profile.</p>
+          <Button onClick={signOut} variant="outline">Sign Out</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5">
@@ -41,10 +111,10 @@ const ManagerDashboard = () => {
         >
           <div>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Team Lead Dashboard
+              {manager.position || 'Manager'} Dashboard
             </h1>
             <p className="text-sm md:text-base text-muted-foreground mt-2">
-              {manager.full_name} • {team.name}
+              {manager.full_name} • {manager.departments?.name || 'Department'}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -76,7 +146,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <TeamRosterWidget teamId={team.id} />
+              <TeamRosterWidget teamId={managerId || ''} />
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -85,7 +155,7 @@ const ManagerDashboard = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <PerformanceAnalyticsWidget teamId={team.id} />
+                <PerformanceAnalyticsWidget teamId={managerId || ''} />
               </motion.div>
 
               <motion.div
@@ -93,7 +163,7 @@ const ManagerDashboard = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <SalaryInsightsWidget teamId={team.id} />
+                <SalaryInsightsWidget teamId={managerId || ''} />
               </motion.div>
             </div>
 
@@ -102,7 +172,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <ProjectTasksWidget teamId={team.id} />
+              <ProjectTasksWidget managerId={managerId || ''} />
             </motion.div>
           </div>
 
@@ -113,7 +183,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <AIInsightsWidget managerId={manager.id} />
+              <AIInsightsWidget managerId={managerId || ''} />
             </motion.div>
 
             <motion.div
@@ -121,7 +191,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <SkillsManagementWidget teamId={team.id} />
+              <SkillsManagementWidget teamId={managerId || ''} />
             </motion.div>
           </div>
         </div>
