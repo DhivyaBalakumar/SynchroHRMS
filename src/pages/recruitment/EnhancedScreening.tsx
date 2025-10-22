@@ -98,43 +98,49 @@ const EnhancedScreening = () => {
 
     toast({
       title: 'AI Screening Started',
-      description: `Processing ${pendingResumes.length} resumes...`,
+      description: `Processing ${pendingResumes.length} resumes with AI...`,
     });
 
-    // Simulate AI batch screening
-    for (const resume of pendingResumes) {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate processing
-      
-      const aiScore = Math.floor(Math.random() * 40) + 60; // 60-100
-      const recommendation = aiScore >= 80 ? 'Highly Recommended' : aiScore >= 70 ? 'Recommended' : 'Consider';
+    // Real AI batch screening using edge function
+    let successCount = 0;
+    let errorCount = 0;
 
-      await supabase
-        .from('resumes')
-        .update({
-          ai_score: aiScore,
-          ai_analysis: {
-            recommendation,
-            skills_match: Math.floor(Math.random() * 30) + 70,
-            experience_match: Math.floor(Math.random() * 30) + 65,
-            education_match: Math.floor(Math.random() * 30) + 75,
-            key_strengths: [
-              'Strong technical background',
-              'Excellent communication skills',
-              'Relevant project experience'
-            ],
-            areas_of_concern: aiScore < 75 ? ['Limited experience in specific domain'] : [],
-            skill_gaps: ['Advanced certifications', 'Domain expertise'],
-            detailed_analysis: `Candidate shows ${aiScore >= 80 ? 'exceptional' : 'good'} fit for the role with strong technical skills and relevant experience.`,
-          },
-        })
-        .eq('id', resume.id);
+    for (const resume of pendingResumes) {
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-resume-screening', {
+          body: { 
+            resume_id: resume.id,
+            job_role_id: resume.job_role_id 
+          }
+        });
+
+        if (error) {
+          console.error('AI screening error for resume:', resume.id, error);
+          errorCount++;
+        } else if (data?.success) {
+          successCount++;
+        }
+      } catch (err) {
+        console.error('Exception during AI screening:', err);
+        errorCount++;
+      }
     }
 
     setProcessing(false);
-    toast({
-      title: 'AI Screening Complete',
-      description: 'All resumes have been analyzed',
-    });
+    
+    if (errorCount === 0) {
+      toast({
+        title: 'AI Screening Complete',
+        description: `Successfully analyzed ${successCount} resumes`,
+      });
+    } else {
+      toast({
+        title: 'AI Screening Completed with Issues',
+        description: `Analyzed ${successCount} resumes, ${errorCount} failed`,
+        variant: 'destructive',
+      });
+    }
+    
     loadData();
   };
 
