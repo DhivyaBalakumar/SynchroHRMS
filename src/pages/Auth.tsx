@@ -12,10 +12,12 @@ import { validateEmail, validatePassword } from '@/lib/emailValidation';
 import { Users, UserCog, Shield, GraduationCap, Briefcase, Mail, Lock, User, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 
 const roleOptions = [
-  { value: 'employee', label: 'Employee', Icon: Users, description: 'Access personal workspace', color: 'from-blue-500 to-blue-600' },
-  { value: 'manager', label: 'Manager', Icon: UserCog, description: 'Manage your team', color: 'from-purple-500 to-purple-600' },
-  { value: 'hr', label: 'HR', Icon: Shield, description: 'Full system access', color: 'from-green-500 to-green-600' },
-  { value: 'intern', label: 'Intern', Icon: GraduationCap, description: 'Learning & growth', color: 'from-orange-500 to-orange-600' },
+  { value: 'admin', label: 'Management Admin', Icon: Shield, description: 'Full system administration', color: 'from-red-500 to-red-600' },
+  { value: 'senior_manager', label: 'Senior Manager', Icon: Briefcase, description: 'Strategic oversight', color: 'from-indigo-500 to-indigo-600' },
+  { value: 'hr', label: 'HR Recruiter', Icon: UserCog, description: 'Recruitment & HR management', color: 'from-green-500 to-green-600' },
+  { value: 'manager', label: 'Manager', Icon: Users, description: 'Team management', color: 'from-purple-500 to-purple-600' },
+  { value: 'employee', label: 'Employee', Icon: User, description: 'Employee workspace', color: 'from-blue-500 to-blue-600' },
+  { value: 'intern', label: 'Intern', Icon: GraduationCap, description: 'Learning & development', color: 'from-orange-500 to-orange-600' },
 ];
 
 const Auth = () => {

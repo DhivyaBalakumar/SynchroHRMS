@@ -15,6 +15,7 @@ import ManagerDashboard from "./pages/dashboard/ManagerDashboard";
 import HRDashboard from "./pages/dashboard/HRDashboard";
 import InternDashboard from "./pages/dashboard/InternDashboard";
 import SeniorManagerDashboard from "./pages/dashboard/SeniorManagerDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import BulkUpload from "./pages/recruitment/BulkUpload";
 import ResumeScreening from "./pages/recruitment/ResumeScreening";
 import EnhancedScreening from "./pages/recruitment/EnhancedScreening";
@@ -105,6 +106,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredRole={['senior_manager']}>
                     <SeniorManagerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/admin"
+                element={
+                  <ProtectedRoute requiredRole={['admin']}>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 }
               />
