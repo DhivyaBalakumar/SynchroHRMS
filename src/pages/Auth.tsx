@@ -183,26 +183,7 @@ const Auth = () => {
 
         navigate(`/dashboard/${userRole}`);
       } else {
-        // Check if user already exists with a role by checking employees table
-        const { data: existingEmployee } = await supabase
-          .from('employees')
-          .select('id, user_id, email')
-          .eq('email', email)
-          .maybeSingle();
-
-        if (existingEmployee) {
-          // Check if they have a role assigned
-          const { data: existingRole } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', existingEmployee.user_id)
-            .maybeSingle();
-
-          if (existingRole) {
-            throw new Error(`This email is already registered as ${existingRole.role}. Please log in instead or contact HR to change your role.`);
-          }
-        }
-
+        // Sign up new user
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -210,21 +191,38 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/dashboard/${selectedRole}`,
             data: {
               full_name: fullName,
+              role: selectedRole,
             },
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          // Handle specific error cases
+          if (error.message?.includes('already registered') || error.message?.includes('User already exists')) {
+            throw new Error('This email is already registered. Please log in instead.');
+          }
+          throw error;
+        }
 
         if (data.user) {
+          // Insert role with upsert to handle duplicates
           const { error: roleError } = await supabase
             .from('user_roles')
-            .insert([{
+            .upsert({
               user_id: data.user.id,
               role: selectedRole as any,
-            }]);
+            }, {
+              onConflict: 'user_id',
+              ignoreDuplicates: false
+            });
 
-          if (roleError) throw roleError;
+          if (roleError) {
+            console.error('Role insertion error:', roleError);
+            // Don't throw error if it's just a duplicate key error
+            if (!roleError.message?.includes('duplicate') && !roleError.code?.includes('23505')) {
+              throw new Error(`Failed to assign ${selectedRole} role. Please contact support.`);
+            }
+          }
 
           // Send verification email (optional with auto-confirm enabled)
           try {

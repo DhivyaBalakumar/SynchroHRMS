@@ -54,6 +54,11 @@ class ErrorBoundary extends Component<Props, State> {
 
   handleRetry = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+    window.location.href = '/';
+  };
+
+  handleGoHome = () => {
+    window.location.href = '/';
   };
 
   render() {
@@ -79,21 +84,21 @@ class ErrorBoundary extends Component<Props, State> {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={this.handleGoHome}
+                  className="w-full"
+                  variant="default"
+                >
+                  Go to Home
+                </Button>
                 <Button
                   onClick={this.handleRetry}
-                  className="flex-1"
-                  variant="default"
+                  variant="outline"
+                  className="w-full"
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Try Again
-                </Button>
-                <Button
-                  onClick={() => window.location.reload()}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Refresh Page
                 </Button>
               </div>
 

@@ -44,24 +44,27 @@ export const InterviewReportsSection = () => {
           )
         `)
         .eq('status', 'completed')
-        .not('ai_score', 'is', null)
         .order('completed_at', { ascending: false });
 
       if (error) throw error;
 
-      // Filter only real candidates
-      const realCandidateInterviews = (interviews || []).filter(
-        (interview: any) => interview.resumes?.source === 'real'
+      // Filter only interviews with AI scores
+      const analyzedInterviews = (interviews || []).filter(
+        (interview: any) => interview.ai_score != null
       );
 
-      setReports(realCandidateInterviews);
-    } catch (error) {
+      setReports(analyzedInterviews);
+    } catch (error: any) {
       console.error('Error loading reports:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load interview reports',
-        variant: 'destructive',
-      });
+      // Don't show error toast if it's just no data
+      if (error.message && !error.message.includes('no rows')) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load interview reports',
+          variant: 'destructive',
+        });
+      }
+      setReports([]);
     } finally {
       setLoading(false);
     }
