@@ -146,7 +146,8 @@ const HRDashboard = () => {
     }
   };
 
-  const getUrgencyColor = (urgency: string) => {
+  const getUrgencyColor = (urgency: string | undefined) => {
+    if (!urgency) return 'bg-gray-500';
     switch (urgency) {
       case 'urgent_hiring': return 'bg-red-500';
       case 'hiring': return 'bg-yellow-500';
@@ -316,10 +317,14 @@ const HRDashboard = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-lg font-bold">{role.title}</h3>
-                          <Badge className={getUrgencyColor(role.urgency)}>
-                            {role.urgency.replace('_', ' ')}
-                          </Badge>
-                          <Badge variant="outline">{role.vacancies} positions</Badge>
+                          {role.urgency && (
+                            <Badge className={getUrgencyColor(role.urgency)}>
+                              {role.urgency.replace(/_/g, ' ')}
+                            </Badge>
+                          )}
+                          {role.vacancies && (
+                            <Badge variant="outline">{role.vacancies} positions</Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground mb-2">{role.department}</p>
                         <p className="text-sm">{role.description}</p>
