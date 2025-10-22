@@ -47,19 +47,10 @@ const Auth = () => {
       setSelectedRole(role);
     }
 
-    // Handle existing session
+    // Redirect logged-in users to their dashboard
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
-      // If on signup mode and user is already logged in, sign them out once
-      if (mode === 'signup' && session?.user) {
-        console.log('Signup mode with existing session detected - signing out...');
-        await supabase.auth.signOut();
-        return;
-      }
-      
-      // If logged in and on login mode, redirect to dashboard
-      if (session?.user && mode !== 'signup') {
+      if (session?.user) {
         const { data: roleData } = await supabase
           .from('user_roles')
           .select('role')
@@ -138,8 +129,6 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('=== SIGNUP STARTED ===', { email, selectedRole, isLogin });
-    
     setLoading(true);
     setEmailError('');
     setPasswordError('');
@@ -197,7 +186,6 @@ const Auth = () => {
         navigate(`/dashboard/${userRole}`);
       } else {
         // Sign up new user
-        console.log('Starting signup process...');
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -210,11 +198,7 @@ const Auth = () => {
           },
         });
 
-        console.log('Signup response:', { hasData: !!data, hasError: !!error, userId: data?.user?.id });
-
         if (error) {
-          console.error('Signup error:', error);
-          // Handle specific error cases
           if (error.message?.includes('already registered') || error.message?.includes('User already exists')) {
             throw new Error('This email is already registered. Please log in instead.');
           }
@@ -225,9 +209,7 @@ const Auth = () => {
           throw new Error('Failed to create account. Please try again.');
         }
 
-        console.log('User created successfully, inserting role...');
-
-        // Insert role directly (RLS is disabled on user_roles for system operations)
+        // Insert role
         const { error: roleError } = await supabase
           .from('user_roles')
           .upsert({
@@ -237,50 +219,20 @@ const Auth = () => {
             onConflict: 'user_id'
           });
 
-        console.log('Role insertion result:', { hasError: !!roleError });
-
         if (roleError) {
-          console.error('Role insertion error:', roleError);
           throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
         }
 
-        console.log('Signup successful, about to navigate to:', `/dashboard/${selectedRole}`);
-
         toast({
           title: 'Success!',
-          description: 'Account created. Redirecting...',
+          description: 'Account created successfully!',
         });
 
-        // Force loading off after 2 seconds as failsafe
-        setTimeout(() => {
-          console.log('Failsafe: forcing loading off');
-          setLoading(false);
-        }, 2000);
-
-        // Navigate directly - auth state will be handled by AuthContext
-        try {
-          console.log('Attempting navigation...');
-          navigate(`/dashboard/${selectedRole}`, { replace: true });
-          console.log('Navigation called successfully');
-        } catch (navError) {
-          console.error('Navigation error:', navError);
-          // Fallback to window.location if navigate fails
-          window.location.href = `/dashboard/${selectedRole}`;
-        }
+        // Navigate to dashboard
+        navigate(`/dashboard/${selectedRole}`, { replace: true });
       }
     } catch (error: any) {
-      console.error('Auth error:', error);
-      if (error.message?.includes('already registered as')) {
-        toast({
-          title: 'Account Already Exists',
-          description: error.message,
-          variant: 'destructive',
-        });
-        setTimeout(() => {
-          setIsLogin(true);
-          navigate('/auth?mode=login');
-        }, 2000);
-      } else if (error.message?.includes('User already registered') || error.code === '23505') {
+      if (error.message?.includes('User already registered') || error.code === '23505') {
         toast({
           title: 'Account Already Exists',
           description: 'This email is already registered. Please sign in instead.',
