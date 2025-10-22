@@ -23,9 +23,9 @@ interface Employee {
   email: string;
   phone?: string;
   position?: string;
-  department?: string;
+  department_id?: string;
   hire_date?: string;
-  status: string;
+  employment_status: string;
 }
 
 const EmployeeList = () => {
@@ -129,8 +129,8 @@ const EmployeeList = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-bold">{employee.full_name}</h3>
-                        <Badge className={getStatusColor(employee.status)}>
-                          {employee.status.replace('_', ' ')}
+                        <Badge className={getStatusColor(employee.employment_status)}>
+                          {employee.employment_status.replace('_', ' ')}
                         </Badge>
                         <Badge variant="outline">{employee.employee_id}</Badge>
                       </div>
@@ -138,7 +138,6 @@ const EmployeeList = () => {
                       {employee.position && (
                         <p className="text-sm text-muted-foreground mb-1">
                           {employee.position}
-                          {employee.department && ` • ${employee.department}`}
                         </p>
                       )}
 

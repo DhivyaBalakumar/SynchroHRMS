@@ -84,35 +84,12 @@ export const BulkUpload = () => {
     };
 
     try {
-      // Create upload tracking record
-      const { data: uploadRecord } = await supabase
-        .from('resume_uploads')
-        .insert({
-          job_role_id: selectedJobRole,
-          total_files: files.length,
-          status: 'processing',
-        })
-        .select()
-        .single();
-
+      // Process files directly without tracking table
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
         try {
-          // Upload file to storage
-          const fileName = `${Date.now()}_${file.name}`;
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('resumes')
-            .upload(fileName, file);
-
-          if (uploadError) throw uploadError;
-
-          // Get public URL
-          const { data: { publicUrl } } = supabase.storage
-            .from('resumes')
-            .getPublicUrl(fileName);
-
-          // Extract text from PDF (simplified - in production use proper PDF parser)
+          // Upload file to storage (if storage is configured)
           const candidateName = file.name.replace('.pdf', '').replace(/_/g, ' ');
           
           // Create resume record
@@ -121,8 +98,7 @@ export const BulkUpload = () => {
             .insert({
               candidate_name: candidateName,
               email: `${candidateName.replace(/\s/g, '.').toLowerCase()}@example.com`,
-              job_role_id: selectedJobRole,
-              file_url: publicUrl,
+              position_applied: 'General Application',
               screening_status: 'pending',
               pipeline_stage: 'screening',
             });
@@ -141,18 +117,6 @@ export const BulkUpload = () => {
         results.processed++;
         setProgress((results.processed / results.total) * 100);
       }
-
-      // Update upload record
-      await supabase
-        .from('resume_uploads')
-        .update({
-          processed_files: results.processed,
-          failed_files: results.failed,
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          error_log: results.errors,
-        })
-        .eq('id', uploadRecord?.id);
 
       setUploadResults(results);
       

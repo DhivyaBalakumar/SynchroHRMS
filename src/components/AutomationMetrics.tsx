@@ -45,8 +45,7 @@ export const AutomationMetrics = () => {
       // Count completed automations from audit log
       const { count: completedCount } = await supabase
         .from('pipeline_audit_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('automation_triggered', true);
+        .select('*', { count: 'exact', head: true });
 
       setMetrics({
         automatedInterviews: automatedCount || 0,

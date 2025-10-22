@@ -27,18 +27,16 @@ export const ProjectTasksWidget = ({ teamId }: ProjectTasksWidgetProps) => {
       .eq('manager_id', teamId)
       .order('created_at', { ascending: false });
 
-    const filteredProjects = applyFilter(projectsData || []);
-    setProjects(filteredProjects);
+    setProjects(projectsData || []);
 
-    if (filteredProjects && filteredProjects.length > 0) {
+    if (projectsData && projectsData.length > 0) {
       const { data: tasksData } = await supabase
         .from('project_tasks')
         .select('*, employees(*)')
-        .in('project_id', filteredProjects.map(p => p.id))
+        .in('project_id', projectsData.map(p => p.id))
         .order('due_date', { ascending: true });
 
-      const filteredTasks = applyFilter(tasksData || []);
-      setTasks(filteredTasks);
+      setTasks(tasksData || []);
     }
   };
 

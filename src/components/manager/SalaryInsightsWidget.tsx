@@ -20,7 +20,7 @@ export const SalaryInsightsWidget = ({ teamId }: SalaryInsightsWidgetProps) => {
   const loadSalaryData = async () => {
     const { data: members } = await supabase
       .from('team_members')
-      .select('employee_id, employees!team_members_employee_id_fkey(*)')
+      .select('employee_id')
       .eq('manager_id', teamId);
 
     // Extract employee IDs
@@ -30,8 +30,7 @@ export const SalaryInsightsWidget = ({ teamId }: SalaryInsightsWidgetProps) => {
       const { data: salaries } = await supabase
         .from('salary_records')
         .select('*')
-        .in('employee_id', employeeIds)
-        .eq('is_current', true);
+        .in('employee_id', employeeIds);
 
       if (salaries && salaries.length > 0) {
         const netSalaries = salaries.map(s => s.net_salary);

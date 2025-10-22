@@ -58,7 +58,7 @@ export const ResumeScreening = () => {
     }
 
     if (activeTab === 'pending') {
-      query = query.in('screening_status', ['pending', 'ai_reviewed']);
+      query = query.eq('screening_status', 'pending');
     } else if (activeTab === 'selected') {
       query = query.eq('screening_status', 'selected');
     } else if (activeTab === 'rejected') {
@@ -106,7 +106,7 @@ export const ResumeScreening = () => {
         .update({
           ai_score: data.analysis.overall_score,
           ai_analysis: data.analysis,
-          screening_status: 'ai_reviewed',
+          screening_status: 'pending',
         })
         .eq('id', resumeId);
 
@@ -158,11 +158,8 @@ export const ResumeScreening = () => {
 
       // Log pipeline transition
       await supabase.from('pipeline_audit_logs').insert({
-        resume_id: resumeId,
-        from_stage: 'screening',
-        to_stage: decision === 'selected' ? 'selected' : 'rejected',
-        automation_triggered: false,
-        notes: `Manual ${decision} by HR`,
+        action: `Manual ${decision} by HR`,
+        details: { from_stage: 'screening', to_stage: decision === 'selected' ? 'selected' : 'rejected' }
       });
 
       // If selected, send immediate selection confirmation email
@@ -217,10 +214,10 @@ export const ResumeScreening = () => {
           },
         });
 
-        // Mark as sent
+        // Mark as sent - using selection_email_sent for now
         await supabase
           .from('resumes')
-          .update({ rejection_email_sent: true })
+          .update({ selection_email_sent: true })
           .eq('id', resumeId);
 
         toast({

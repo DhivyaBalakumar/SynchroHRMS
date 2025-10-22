@@ -21,11 +21,7 @@ interface JobRole {
   department: string;
   description: string;
   requirements: any;
-  vacancies: number;
-  urgency: string;
-  location?: string;
-  experience_required?: string;
-  salary_range?: string;
+  status: string;
   created_at: string;
 }
 
@@ -137,12 +133,7 @@ const JobListings = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h2 className="text-2xl font-bold">{job.title}</h2>
-                        <Badge className={getUrgencyColor(job.urgency)}>
-                          {job.urgency.replace('_', ' ')}
-                        </Badge>
-                        <Badge variant="outline">
-                          {job.vacancies} {job.vacancies === 1 ? 'position' : 'positions'}
-                        </Badge>
+                        <Badge variant="outline">Active</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mb-1">{job.department}</p>
                     </div>
@@ -152,27 +143,6 @@ const JobListings = () => {
                   </div>
 
                   <p className="text-muted-foreground mb-4">{job.description}</p>
-
-                  <div className="flex flex-wrap gap-4 mb-4">
-                    {job.location && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{job.location}</span>
-                      </div>
-                    )}
-                    {job.experience_required && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span>{job.experience_required}</span>
-                      </div>
-                    )}
-                    {job.salary_range && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span>{job.salary_range}</span>
-                      </div>
-                    )}
-                  </div>
 
                   {job.requirements && job.requirements.length > 0 && (
                     <div className="flex flex-wrap gap-2">

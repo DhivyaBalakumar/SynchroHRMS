@@ -26,12 +26,10 @@ export const LeaveManagementWidget = ({ employeeId }: LeaveManagementWidgetProps
   }, [employeeId]);
 
   const loadLeaveData = async () => {
-    const year = new Date().getFullYear();
     const { data: balance } = await supabase
       .from('leave_balance')
       .select('*')
       .eq('employee_id', employeeId)
-      .eq('year', year)
       .maybeSingle();
 
     const { data: requests } = await supabase

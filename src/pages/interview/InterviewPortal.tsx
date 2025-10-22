@@ -163,8 +163,9 @@ export const InterviewPortal = () => {
       const { data, error } = await supabase
         .from('interviews')
         .insert({
-          resume_id: resumeId,
           candidate_name: candidateName,
+          candidate_email: '',
+          position: jobTitle || 'Unknown',
           interview_type: 'ai_video',
           status: 'in_progress',
           scheduled_at: new Date().toISOString(),

@@ -129,9 +129,9 @@ const JobApplication = () => {
       await supabase
         .from('candidates')
         .insert({
-          resume_id: resumeData.id,
-          job_role_id: job.id,
-          stage: 'screening',
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
         });
 
       setSubmitted(true);

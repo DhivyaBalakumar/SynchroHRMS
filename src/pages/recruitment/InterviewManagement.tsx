@@ -45,7 +45,7 @@ export const InterviewManagement = () => {
       .order('created_at', { ascending: false });
 
     if (statusFilter !== 'all') {
-      query = query.eq('status', statusFilter);
+      query = query.eq('status', statusFilter as 'cancelled' | 'completed' | 'in_progress' | 'scheduled');
     }
 
     const { data, error } = await query;

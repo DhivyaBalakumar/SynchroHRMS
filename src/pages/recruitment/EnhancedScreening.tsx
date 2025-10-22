@@ -79,7 +79,7 @@ const EnhancedScreening = () => {
     }
 
     if (activeTab !== 'all') {
-      query = query.eq('screening_status', activeTab);
+      query = query.eq('screening_status', activeTab as 'pending' | 'rejected' | 'selected');
     }
 
     // Apply demo mode filter in production mode
