@@ -118,15 +118,35 @@ const ManagerDashboard = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" className="gap-2 text-xs md:text-sm">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 text-xs md:text-sm"
+              onClick={() => window.open('https://teams.microsoft.com', '_blank')}
+            >
               <MessageSquare className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden sm:inline">Team Chat</span>
             </Button>
-            <Button variant="outline" size="sm" className="gap-2 text-xs md:text-sm">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 text-xs md:text-sm"
+              onClick={() => {
+                const analyticsSection = document.getElementById('analytics-section');
+                analyticsSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               <BarChart3 className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </Button>
-            <Button variant="outline" size="sm" className="gap-2 text-xs md:text-sm">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 text-xs md:text-sm"
+              onClick={() => {
+                window.print();
+              }}
+            >
               <FileText className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden sm:inline">Reports</span>
             </Button>
@@ -158,13 +178,14 @@ const ManagerDashboard = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <PerformanceAnalyticsWidget teamId={displayManagerId} />
-              </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              id="analytics-section"
+            >
+              <PerformanceAnalyticsWidget teamId={displayManagerId} />
+            </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, x: -20 }}

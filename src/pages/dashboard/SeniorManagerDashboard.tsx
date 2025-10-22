@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Users, TrendingUp, Target, LogOut, DollarSign, Award, AlertCircle, UserCheck, Briefcase, TrendingDown } from 'lucide-react';
+import { BarChart3, Users, TrendingUp, Target, LogOut, DollarSign, Award, AlertCircle, UserCheck, Briefcase, TrendingDown, MessageSquare, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -170,6 +170,36 @@ const SeniorManagerDashboard = () => {
                 Live Updates
               </Badge>
             )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={() => window.open('https://teams.microsoft.com', '_blank')}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Team Chat
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={() => {
+                const analyticsSection = document.getElementById('analytics-section');
+                analyticsSection?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={() => window.print()}
+            >
+              <FileText className="h-4 w-4" />
+              Reports
+            </Button>
             <Button onClick={signOut} variant="outline">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
@@ -206,7 +236,7 @@ const SeniorManagerDashboard = () => {
         </div>
 
         {/* Company-Wide Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" id="analytics-section">
           {/* Department Performance */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -214,7 +244,18 @@ const SeniorManagerDashboard = () => {
             transition={{ delay: 0.4 }}
           >
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-4">Department Workforce Distribution</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">Department Workforce Distribution</h3>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => {
+                    window.open('/employees/department-management', '_self');
+                  }}
+                >
+                  View Details
+                </Button>
+              </div>
               {deptPerformance && deptPerformance.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={deptPerformance}>
@@ -242,7 +283,18 @@ const SeniorManagerDashboard = () => {
             transition={{ delay: 0.5 }}
           >
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-4">6-Month Hiring Trends</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">6-Month Hiring Trends</h3>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => {
+                    window.open('/recruitment/pipeline', '_self');
+                  }}
+                >
+                  View Pipeline
+                </Button>
+              </div>
               {hiringTrends ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={hiringTrends}>
@@ -273,9 +325,25 @@ const SeniorManagerDashboard = () => {
             transition={{ delay: 0.6 }}
           >
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-4">Organizational Health</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">Organizational Health</h3>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => {
+                    window.open('/analytics/advanced', '_self');
+                  }}
+                >
+                  Full Report
+                </Button>
+              </div>
               <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-green-500/10">
+                <button
+                  className="w-full p-4 rounded-lg bg-green-500/10 hover:bg-green-500/20 transition-all text-left"
+                  onClick={() => {
+                    window.open('/analytics/advanced', '_self');
+                  }}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium">Employee Satisfaction</p>
                     <Badge variant="secondary">Excellent</Badge>
@@ -284,8 +352,13 @@ const SeniorManagerDashboard = () => {
                   <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
                     <div className="h-full w-[94%] bg-green-500 rounded-full" />
                   </div>
-                </div>
-                <div className="p-4 rounded-lg bg-blue-500/10">
+                </button>
+                <button
+                  className="w-full p-4 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 transition-all text-left"
+                  onClick={() => {
+                    window.open('/analytics/advanced', '_self');
+                  }}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium">Retention Rate</p>
                     <Badge variant="secondary">Strong</Badge>
@@ -294,8 +367,13 @@ const SeniorManagerDashboard = () => {
                   <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
                     <div className="h-full w-[94%] bg-blue-500 rounded-full" />
                   </div>
-                </div>
-                <div className="p-4 rounded-lg bg-purple-500/10">
+                </button>
+                <button
+                  className="w-full p-4 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 transition-all text-left"
+                  onClick={() => {
+                    window.open('/analytics/advanced', '_self');
+                  }}
+                >
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium">Productivity Index</p>
                     <Badge variant="secondary">Growing</Badge>
@@ -304,7 +382,7 @@ const SeniorManagerDashboard = () => {
                   <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
                     <div className="h-full w-[72%] bg-purple-500 rounded-full" />
                   </div>
-                </div>
+                </button>
               </div>
             </Card>
           </motion.div>
@@ -316,19 +394,34 @@ const SeniorManagerDashboard = () => {
             className="lg:col-span-2"
           >
             <Card className="p-6">
-              <h3 className="text-lg font-bold mb-4">Department Overview</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold">Department Overview</h3>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => {
+                    window.open('/employees/department-management', '_self');
+                  }}
+                >
+                  Manage Departments
+                </Button>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {orgMetrics?.departments?.map((dept: any) => (
-                  <div 
+                  <button
                     key={dept.id} 
-                    className="p-4 rounded-lg bg-secondary/20 hover:bg-secondary/40 transition-all cursor-pointer border border-transparent hover:border-primary"
+                    className="p-4 rounded-lg bg-secondary/20 hover:bg-secondary/40 transition-all border border-transparent hover:border-primary text-left"
+                    onClick={() => {
+                      // Navigate to department details
+                      window.open('/employees/department-management', '_self');
+                    }}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Briefcase className="h-4 w-4 text-primary" />
                       <p className="font-medium text-sm">{dept.name}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground">{dept.description || 'No description'}</p>
-                  </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{dept.description || 'No description'}</p>
+                  </button>
                 ))}
                 {(!orgMetrics?.departments || orgMetrics.departments.length === 0) && (
                   <div className="col-span-4 text-center py-8 text-muted-foreground">
