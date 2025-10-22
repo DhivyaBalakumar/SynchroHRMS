@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useDemoModeFilter } from '@/hooks/useDemoModeFilter';
+import { DemoModeToggle } from '@/components/DemoModeToggle';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -16,7 +18,8 @@ import {
   TrendingUp,
   AlertCircle,
   Target,
-  Zap
+  Zap,
+  FlaskConical
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -39,6 +42,7 @@ const EnhancedScreening = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { applyFilter, isDemoMode } = useDemoModeFilter();
   
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +82,11 @@ const EnhancedScreening = () => {
       query = query.eq('screening_status', activeTab);
     }
 
+    // Apply demo mode filter in production mode
+    if (!isDemoMode) {
+      query = query.neq('source', 'demo');
+    }
+
     const { data, error } = await query;
 
     if (error) {
@@ -87,7 +96,8 @@ const EnhancedScreening = () => {
         variant: 'destructive',
       });
     } else if (data) {
-      setResumes(data);
+      // Additional client-side filtering using the hook
+      setResumes(applyFilter(data));
     }
     setLoading(false);
   };
@@ -203,9 +213,14 @@ const EnhancedScreening = () => {
       </div>
 
       <div className="container mx-auto px-6 py-8">
+        {/* Demo Mode Toggle */}
+        <div className="mb-6">
+          <DemoModeToggle />
+        </div>
+
         {/* Filters */}
         <Card className="p-4 mb-6">
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <select
               value={selectedJobRole}
               onChange={(e) => setSelectedJobRole(e.target.value)}
@@ -216,6 +231,13 @@ const EnhancedScreening = () => {
                 <option key={role.id} value={role.id}>{role.title}</option>
               ))}
             </select>
+            
+            {isDemoMode && (
+              <Badge variant="outline" className="flex items-center gap-1">
+                <FlaskConical className="h-3 w-3" />
+                Demo Mode Active
+              </Badge>
+            )}
           </div>
         </Card>
 
@@ -259,9 +281,16 @@ const EnhancedScreening = () => {
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="text-xl font-bold">{resume.candidate_name}</h3>
-                            <Badge variant={resume.source === 'test' ? 'outline' : 'default'}>
-                              {resume.source === 'test' ? 'Test Data' : 'Real Applicant'}
-                            </Badge>
+                            {resume.source === 'demo' ? (
+                              <Badge variant="secondary" className="flex items-center gap-1">
+                                <FlaskConical className="h-3 w-3" />
+                                Demo Data
+                              </Badge>
+                            ) : (
+                              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                                Production Data
+                              </Badge>
+                            )}
                             {resume.ai_score && (
                               <Badge className={getScoreBgColor(resume.ai_score)}>
                                 <Target className="h-3 w-3 mr-1" />
