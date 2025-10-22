@@ -39,46 +39,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!isMounted) return;
         
         console.log('Auth state changed:', event, session?.user?.email);
         
+        // Only synchronous state updates here
+        setSession(session);
+        setUser(session?.user ?? null);
+        
         if (!session?.user) {
-          setSession(null);
-          setUser(null);
           setUserRole(null);
           setLoading(false);
           return;
         }
 
-        setSession(session);
-        setUser(session.user);
-
-        // Fetch role immediately without setTimeout to avoid race conditions
-        try {
-          const { data: roles, error } = await supabase
+        // Defer Supabase calls with setTimeout to prevent deadlock
+        setTimeout(() => {
+          if (!isMounted) return;
+          
+          supabase
             .from('user_roles')
             .select('role')
             .eq('user_id', session.user.id)
-            .maybeSingle();
-          
-          if (!isMounted) return;
-          
-          if (error) {
-            console.error('Error fetching user role:', error);
-            setUserRole(null);
-          } else {
-            console.log('User role fetched:', roles?.role);
-            setUserRole(roles?.role ?? null);
-          }
-          setLoading(false);
-        } catch (error) {
-          if (!isMounted) return;
-          console.error('Error fetching user role:', error);
-          setUserRole(null);
-          setLoading(false);
-        }
+            .maybeSingle()
+            .then(({ data: roles, error }) => {
+              if (!isMounted) return;
+              
+              if (error) {
+                console.error('Error fetching user role:', error);
+                setUserRole(null);
+              } else {
+                console.log('User role fetched:', roles?.role);
+                setUserRole(roles?.role ?? null);
+              }
+              setLoading(false);
+            });
+        }, 0);
       }
     );
 
