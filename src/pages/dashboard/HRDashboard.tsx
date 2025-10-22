@@ -27,6 +27,7 @@ import { DemoModeToggle } from '@/components/DemoModeToggle';
 import { useDemoModeFilter } from '@/hooks/useDemoModeFilter';
 import { FloatingChatbot } from '@/components/FloatingChatbot';
 import { AIInterviewWidget } from '@/components/hr/AIInterviewWidget';
+import { InterviewReportsSection } from '@/components/hr/InterviewReportsSection';
 
 const HRDashboard = () => {
   const { user, signOut } = useAuth();
@@ -311,6 +312,9 @@ const HRDashboard = () => {
           <TabsContent value="interviews" className="space-y-6">
             {/* AI Interview Management Widget */}
             <AIInterviewWidget />
+
+            {/* Interview Analysis Reports */}
+            <InterviewReportsSection />
 
             {/* Quick Actions */}
             <Card className="p-6">

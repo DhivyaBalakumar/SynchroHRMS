@@ -317,6 +317,107 @@ export type Database = {
           },
         ]
       }
+      interview_analysis: {
+        Row: {
+          ai_summary: string | null
+          analysis_completed_at: string | null
+          areas_of_improvement: string[] | null
+          audio_transcript: string | null
+          body_language_notes: string | null
+          communication_score: number | null
+          confidence_score: number | null
+          created_at: string | null
+          detected_emotions: Json | null
+          dominant_emotion: string | null
+          emotion_timeline: Json | null
+          engagement_score: number | null
+          facial_expressions: Json | null
+          filler_words_count: number | null
+          id: string
+          interview_id: string
+          key_insights: string[] | null
+          overall_rating: number | null
+          overall_sentiment: string | null
+          pause_analysis: Json | null
+          professionalism_score: number | null
+          sentiment_details: Json | null
+          sentiment_score: number | null
+          speech_clarity: number | null
+          speech_pace: number | null
+          strengths: string[] | null
+          transcript_confidence: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          analysis_completed_at?: string | null
+          areas_of_improvement?: string[] | null
+          audio_transcript?: string | null
+          body_language_notes?: string | null
+          communication_score?: number | null
+          confidence_score?: number | null
+          created_at?: string | null
+          detected_emotions?: Json | null
+          dominant_emotion?: string | null
+          emotion_timeline?: Json | null
+          engagement_score?: number | null
+          facial_expressions?: Json | null
+          filler_words_count?: number | null
+          id?: string
+          interview_id: string
+          key_insights?: string[] | null
+          overall_rating?: number | null
+          overall_sentiment?: string | null
+          pause_analysis?: Json | null
+          professionalism_score?: number | null
+          sentiment_details?: Json | null
+          sentiment_score?: number | null
+          speech_clarity?: number | null
+          speech_pace?: number | null
+          strengths?: string[] | null
+          transcript_confidence?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ai_summary?: string | null
+          analysis_completed_at?: string | null
+          areas_of_improvement?: string[] | null
+          audio_transcript?: string | null
+          body_language_notes?: string | null
+          communication_score?: number | null
+          confidence_score?: number | null
+          created_at?: string | null
+          detected_emotions?: Json | null
+          dominant_emotion?: string | null
+          emotion_timeline?: Json | null
+          engagement_score?: number | null
+          facial_expressions?: Json | null
+          filler_words_count?: number | null
+          id?: string
+          interview_id?: string
+          key_insights?: string[] | null
+          overall_rating?: number | null
+          overall_sentiment?: string | null
+          pause_analysis?: Json | null
+          professionalism_score?: number | null
+          sentiment_details?: Json | null
+          sentiment_score?: number | null
+          speech_clarity?: number | null
+          speech_pace?: number | null
+          strengths?: string[] | null
+          transcript_confidence?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_analysis_interview_id_fkey"
+            columns: ["interview_id"]
+            isOneToOne: false
+            referencedRelation: "interviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interview_feedback: {
         Row: {
           comments: string | null
