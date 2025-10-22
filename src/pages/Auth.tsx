@@ -158,6 +158,8 @@ const Auth = () => {
 
         const userRole = roleData?.role || 'employee';
         
+        setLoading(false);
+        
         toast({
           title: 'Welcome back!',
           description: 'Successfully logged in.',
@@ -203,15 +205,20 @@ const Auth = () => {
           throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
         }
 
+        // Clear loading BEFORE navigation
+        setLoading(false);
+
         toast({
           title: 'Success!',
           description: 'Account created successfully!',
         });
 
-        // Navigate to dashboard - AuthContext will handle the session
-        navigate(`/dashboard/${selectedRole}`, { replace: true });
+        // Use window.location for signup to ensure clean navigation
+        window.location.href = `/dashboard/${selectedRole}`;
       }
     } catch (error: any) {
+      setLoading(false);
+      
       if (error.message?.includes('User already registered') || error.code === '23505') {
         toast({
           title: 'Account Already Exists',
@@ -234,8 +241,6 @@ const Auth = () => {
           variant: 'destructive',
         });
       }
-    } finally {
-      setLoading(false);
     }
   };
 
