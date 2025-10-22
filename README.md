@@ -218,4 +218,4 @@ For API usage and advanced setups, see the `/docs` directory in this repo.
 
 **Dhivya Balakumar**  
 Creator & Developer – SynchroHR  
-Contact: [dhivyabalakumar28@gmail.com](mailto:dhivyabalakumar28@gmail
+Contact: [dhivyabalakumar28@gmail.com](mailto:dhivyabalakumar28@gmail)
