@@ -11,6 +11,7 @@ import TimeTrackingWidget from '@/components/intern/TimeTrackingWidget';
 import PerformanceWidget from '@/components/intern/PerformanceWidget';
 import CareerGrowthWidget from '@/components/intern/CareerGrowthWidget';
 import RecognitionWidget from '@/components/intern/RecognitionWidget';
+import { FloatingChatbot } from '@/components/FloatingChatbot';
 
 const InternDashboard = () => {
   const { user, signOut } = useAuth();
@@ -90,6 +91,9 @@ const InternDashboard = () => {
           <RecognitionWidget />
         </div>
       </div>
+
+      {/* Floating Chatbot */}
+      <FloatingChatbot />
     </div>
   );
 };

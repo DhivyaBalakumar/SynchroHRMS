@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useState } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { FloatingChatbot } from '@/components/FloatingChatbot';
 
 const AdminDashboard = () => {
   const { user, signOut } = useAuth();
@@ -503,6 +504,9 @@ const AdminDashboard = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Floating Chatbot */}
+      <FloatingChatbot />
     </div>
   );
 };

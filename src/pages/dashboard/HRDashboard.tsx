@@ -25,6 +25,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DemoModeToggle } from '@/components/DemoModeToggle';
 import { useDemoModeFilter } from '@/hooks/useDemoModeFilter';
+import { FloatingChatbot } from '@/components/FloatingChatbot';
 
 const HRDashboard = () => {
   const { user, signOut } = useAuth();
@@ -513,6 +514,9 @@ const HRDashboard = () => {
           </div>
         </Card>
       </div>
+
+      {/* Floating Chatbot */}
+      <FloatingChatbot />
     </div>
   );
 };
