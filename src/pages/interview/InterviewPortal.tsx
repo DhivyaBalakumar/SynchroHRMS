@@ -1,0 +1,429 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  Video, 
+  VideoOff, 
+  Mic, 
+  MicOff, 
+  Upload,
+  CheckCircle2,
+  Loader2,
+  Camera
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { VideoRecorder } from '@/components/interview/VideoRecorder';
+
+export const InterviewPortal = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [resumeId, setResumeId] = useState<string | null>(null);
+  const [interviewId, setInterviewId] = useState<string | null>(null);
+  const [candidateName, setCandidateName] = useState<string>('');
+  const [jobTitle, setJobTitle] = useState<string>('');
+  const [step, setStep] = useState<'welcome' | 'setup' | 'interview' | 'complete'>('welcome');
+  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [micEnabled, setMicEnabled] = useState(false);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [recordedVideos, setRecordedVideos] = useState<Map<number, Blob>>(new Map());
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('interview_token');
+    const storedResumeId = sessionStorage.getItem('resume_id');
+    const storedName = sessionStorage.getItem('candidate_name');
+    const storedJob = sessionStorage.getItem('job_title');
+
+    if (!token || !storedResumeId) {
+      toast({
+        title: 'Access Denied',
+        description: 'Invalid session. Please use your interview link.',
+        variant: 'destructive',
+      });
+      navigate('/interview/login');
+      return;
+    }
+
+    setResumeId(storedResumeId);
+    setCandidateName(storedName || '');
+    setJobTitle(storedJob || '');
+    
+    // Generate AI questions
+    generateInterviewQuestions(storedJob || '');
+  }, [navigate, toast]);
+
+  const generateInterviewQuestions = async (jobTitle: string) => {
+    setLoadingQuestions(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-interview-questions', {
+        body: {
+          jobRoleTitle: jobTitle,
+          jobRequirements: ['Communication', 'Problem-solving', 'Technical skills'],
+          experienceLevel: 'Mid-level',
+          numberOfQuestions: 5
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.questions) {
+        setQuestions(data.questions);
+      }
+    } catch (error) {
+      console.error('Error generating questions:', error);
+      // Fallback questions
+      setQuestions([
+        {
+          question: "Tell me about yourself and your background.",
+          category: "cultural-fit",
+          difficulty: "easy"
+        },
+        {
+          question: "What interests you about this position?",
+          category: "behavioral",
+          difficulty: "easy"
+        },
+        {
+          question: "Describe a challenging project you've worked on.",
+          category: "problem-solving",
+          difficulty: "medium"
+        },
+        {
+          question: "What are your key strengths and how do they apply to this role?",
+          category: "behavioral",
+          difficulty: "medium"
+        },
+        {
+          question: "Where do you see yourself in the next 3-5 years?",
+          category: "cultural-fit",
+          difficulty: "easy"
+        }
+      ]);
+    } finally {
+      setLoadingQuestions(false);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720 },
+        audio: true
+      });
+      
+      setMediaStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setCameraEnabled(true);
+      setMicEnabled(true);
+
+      toast({
+        title: 'Camera Ready',
+        description: 'Your camera and microphone are now active',
+      });
+    } catch (error) {
+      console.error('Error accessing media devices:', error);
+      toast({
+        title: 'Camera Access Denied',
+        description: 'Please allow camera and microphone access to continue',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const stopCamera = () => {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
+      setCameraEnabled(false);
+      setMicEnabled(false);
+    }
+  };
+
+  const handleStartInterview = async () => {
+    if (!cameraEnabled) {
+      toast({
+        title: 'Camera Required',
+        description: 'Please enable your camera before starting',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Create interview session
+    try {
+      const { data, error } = await supabase
+        .from('interviews')
+        .insert({
+          resume_id: resumeId,
+          candidate_name: candidateName,
+          interview_type: 'ai_video',
+          status: 'in_progress',
+          scheduled_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setInterviewId(data.id);
+      setStep('interview');
+      toast({
+        title: 'Interview Started',
+        description: 'Good luck! Take your time with each question.',
+      });
+    } catch (error: any) {
+      console.error('Error starting interview:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to start interview session',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      handleCompleteInterview();
+    }
+  };
+
+  const handleCompleteInterview = async () => {
+    stopCamera();
+    setStep('complete');
+
+    // Mark interview as complete and trigger automation
+    try {
+      const token = sessionStorage.getItem('interview_token');
+      
+      // Update interview token
+      await supabase
+        .from('interview_tokens')
+        .update({ 
+          interview_completed: true,
+          used_at: new Date().toISOString()
+        })
+        .eq('token', token);
+
+      // Trigger automated completion workflow
+      if (interviewId && resumeId) {
+        await supabase.functions.invoke('process-interview-completion', {
+          body: {
+            interviewId,
+            resumeId,
+          },
+        });
+      }
+
+      toast({
+        title: 'Interview Complete!',
+        description: 'Thank you for completing the interview. You will receive a confirmation email shortly.',
+      });
+    } catch (error) {
+      console.error('Error completing interview:', error);
+      toast({
+        title: 'Interview Recorded',
+        description: 'Your interview has been saved. HR will review your responses.',
+      });
+    }
+  };
+
+  const renderWelcome = () => (
+    <Card className="p-8 max-w-2xl mx-auto">
+      <div className="text-center space-y-4">
+        <div className="mx-auto w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
+          <Video className="h-10 w-10 text-primary" />
+        </div>
+        <h1 className="text-3xl font-bold">Welcome, {candidateName}!</h1>
+        <p className="text-lg text-muted-foreground">
+          Interview for: <strong>{jobTitle}</strong>
+        </p>
+        
+        <div className="bg-secondary/20 p-6 rounded-lg text-left space-y-3 my-6">
+          <h3 className="font-semibold text-lg">Interview Instructions:</h3>
+          <ul className="space-y-2 text-sm">
+            <li>✓ Find a quiet, well-lit space</li>
+            <li>✓ Ensure stable internet connection</li>
+            <li>✓ The interview will take approximately 20-30 minutes</li>
+            <li>✓ Answer each question naturally and take your time</li>
+            <li>✓ You can review your resume before starting</li>
+          </ul>
+        </div>
+
+        <div className="flex gap-3 justify-center">
+          <Button onClick={() => setStep('setup')} size="lg">
+            Continue to Setup
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+
+  const renderSetup = () => (
+    <Card className="p-8 max-w-2xl mx-auto">
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Camera & Microphone Setup</h2>
+          <p className="text-muted-foreground">
+            Please enable your camera and microphone to proceed
+          </p>
+        </div>
+
+        <div className="aspect-video bg-secondary/20 rounded-lg overflow-hidden relative">
+          {cameraEnabled ? (
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center space-y-3">
+                <Camera className="h-16 w-16 mx-auto text-muted-foreground" />
+                <p className="text-muted-foreground">Camera not active</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3 justify-center">
+          {!cameraEnabled ? (
+            <Button onClick={startCamera} size="lg">
+              <Video className="mr-2 h-5 w-5" />
+              Enable Camera
+            </Button>
+          ) : (
+            <>
+              <Button onClick={stopCamera} variant="outline" size="lg">
+                <VideoOff className="mr-2 h-5 w-5" />
+                Stop Camera
+              </Button>
+              <Button onClick={handleStartInterview} size="lg">
+                Start Interview
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+
+  const renderInterview = () => (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold">Question {currentQuestion + 1} of {questions.length}</h2>
+            <Badge variant="outline" className="mt-2">
+              {Math.round(((currentQuestion + 1) / questions.length) * 100)}% Complete
+            </Badge>
+          </div>
+          <div className="flex gap-2">
+            {micEnabled && <Mic className="h-5 w-5 text-green-500" />}
+            {cameraEnabled && <Video className="h-5 w-5 text-blue-500" />}
+          </div>
+        </div>
+        <Progress value={((currentQuestion + 1) / questions.length) * 100} className="mb-4" />
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <h3 className="font-semibold mb-4">Your Video</h3>
+          <div className="aspect-video bg-secondary/20 rounded-lg overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">Question</h3>
+                <Badge variant="outline">
+                  {questions[currentQuestion]?.category || 'General'}
+                </Badge>
+              </div>
+              <div className="bg-primary/5 p-6 rounded-lg min-h-[150px] flex items-center">
+                <p className="text-lg">
+                  {loadingQuestions ? 'Generating personalized questions...' : questions[currentQuestion]?.question}
+                </p>
+              </div>
+            </div>
+
+            <VideoRecorder
+              onRecordingComplete={(blob, duration) => {
+                const newRecordings = new Map(recordedVideos);
+                newRecordings.set(currentQuestion, blob);
+                setRecordedVideos(newRecordings);
+                toast({
+                  title: 'Response Recorded',
+                  description: `Duration: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
+                });
+              }}
+            />
+
+            <div className="flex gap-3">
+              <Button 
+                onClick={handleNextQuestion} 
+                className="flex-1"
+                disabled={loadingQuestions}
+              >
+                {currentQuestion === questions.length - 1 ? 'Complete Interview' : 'Next Question'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const renderComplete = () => (
+    <Card className="p-8 max-w-2xl mx-auto text-center space-y-6">
+      <div className="mx-auto w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center">
+        <CheckCircle2 className="h-10 w-10 text-green-500" />
+      </div>
+      <h1 className="text-3xl font-bold">Interview Complete!</h1>
+      <p className="text-lg text-muted-foreground">
+        Thank you for completing the video interview, {candidateName}.
+      </p>
+      <div className="bg-secondary/20 p-6 rounded-lg space-y-2">
+        <p className="font-medium">What happens next?</p>
+        <ul className="text-sm text-left space-y-2 max-w-md mx-auto">
+          <li>✓ Our HR team will review your interview responses</li>
+          <li>✓ You'll receive an update within 3-5 business days</li>
+          <li>✓ Selected candidates will be contacted for the next round</li>
+        </ul>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        You may now close this window.
+      </p>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+      {step === 'welcome' && renderWelcome()}
+      {step === 'setup' && renderSetup()}
+      {step === 'interview' && renderInterview()}
+      {step === 'complete' && renderComplete()}
+    </div>
+  );
+};
+
+export default InterviewPortal;
