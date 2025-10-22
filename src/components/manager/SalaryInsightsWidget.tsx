@@ -10,6 +10,14 @@ interface SalaryInsightsWidgetProps {
 }
 
 export const SalaryInsightsWidget = ({ teamId }: SalaryInsightsWidgetProps) => {
+  // Demo data with logical values
+  const demoSalaryData = {
+    averageSalary: 85000,
+    minSalary: 65000,
+    maxSalary: 120000,
+    totalBudget: 510000,
+    recentIncrements: 2
+  };
   const [salaryData, setSalaryData] = useState<any>({});
   const { applyFilter } = useDemoModeFilter();
 
@@ -42,15 +50,18 @@ export const SalaryInsightsWidget = ({ teamId }: SalaryInsightsWidgetProps) => {
         const increments = salaries.filter(s => s.increment_amount && s.increment_amount > 0);
 
         setSalaryData({
-          average: avg,
-          min,
-          max,
-          total,
-          teamSize: salaries.length,
+          averageSalary: avg,
+          minSalary: min,
+          maxSalary: max,
+          totalBudget: total,
           recentIncrements: increments.length
         });
+        return;
       }
     }
+
+    // Show demo data if empty or no data
+    setSalaryData(demoSalaryData);
   };
 
   const formatCurrency = (amount: number) => {
@@ -75,14 +86,14 @@ export const SalaryInsightsWidget = ({ teamId }: SalaryInsightsWidgetProps) => {
           <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-lg p-3 border border-green-500/20">
             <p className="text-xs text-muted-foreground mb-1">Average Salary</p>
             <p className="text-xl font-bold text-green-700">
-              {salaryData.average ? formatCurrency(salaryData.average) : '--'}
+              {salaryData.averageSalary ? formatCurrency(salaryData.averageSalary) : '--'}
             </p>
           </div>
 
           <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-3 border border-primary/20">
             <p className="text-xs text-muted-foreground mb-1">Total Budget</p>
             <p className="text-xl font-bold text-primary">
-              {salaryData.total ? formatCurrency(salaryData.total) : '--'}
+              {salaryData.totalBudget ? formatCurrency(salaryData.totalBudget) : '--'}
             </p>
           </div>
         </div>
@@ -98,19 +109,19 @@ export const SalaryInsightsWidget = ({ teamId }: SalaryInsightsWidgetProps) => {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Minimum</span>
               <span className="font-semibold">
-                {salaryData.min ? formatCurrency(salaryData.min) : '--'}
+                {salaryData.minSalary ? formatCurrency(salaryData.minSalary) : '--'}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Median</span>
               <span className="font-semibold">
-                {salaryData.average ? formatCurrency(salaryData.average) : '--'}
+                {salaryData.averageSalary ? formatCurrency(salaryData.averageSalary) : '--'}
               </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Maximum</span>
               <span className="font-semibold">
-                {salaryData.max ? formatCurrency(salaryData.max) : '--'}
+                {salaryData.maxSalary ? formatCurrency(salaryData.maxSalary) : '--'}
               </span>
             </div>
           </div>

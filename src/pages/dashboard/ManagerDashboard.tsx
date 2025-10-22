@@ -10,6 +10,7 @@ import { SalaryInsightsWidget } from '@/components/manager/SalaryInsightsWidget'
 import { SkillsManagementWidget } from '@/components/manager/SkillsManagementWidget';
 import { ProjectTasksWidget } from '@/components/manager/ProjectTasksWidget';
 import { AIInsightsWidget } from '@/components/manager/AIInsightsWidget';
+import { TeamProjectsWidget } from '@/components/manager/TeamProjectsWidget';
 import { FloatingChatbot } from '@/components/FloatingChatbot';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -148,11 +149,19 @@ const ManagerDashboard = () => {
               <TeamRosterWidget teamId={displayManagerId} />
             </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <TeamProjectsWidget teamId={displayManagerId} />
+            </motion.div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.3 }}
               >
                 <PerformanceAnalyticsWidget teamId={displayManagerId} />
               </motion.div>
@@ -160,7 +169,7 @@ const ManagerDashboard = () => {
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.4 }}
               >
                 <SalaryInsightsWidget teamId={displayManagerId} />
               </motion.div>
@@ -169,7 +178,7 @@ const ManagerDashboard = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.5 }}
             >
               <ProjectTasksWidget teamId={displayManagerId} />
             </motion.div>

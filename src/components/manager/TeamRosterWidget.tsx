@@ -13,16 +13,20 @@ interface TeamRosterWidgetProps {
 }
 
 export const TeamRosterWidget = ({ teamId }: TeamRosterWidgetProps) => {
-  // Dummy data for display
+  // Team API - Dummy data for display
+  const teamName = 'Team API';
+  
   const teamMembers = [
     {
       id: '1',
       employee_id: 'emp-1',
-      role: 'senior developer',
+      role: 'team lead',
+      experience: '8 years',
+      projects: ['API Gateway v2', 'Payment Integration', 'Auth Service'],
       employees: {
         id: 'emp-1',
         full_name: 'Sarah Johnson',
-        position: 'Senior Software Engineer',
+        position: 'Senior Full Stack Developer',
         email: 'sarah.j@company.com'
       }
     },
@@ -30,33 +34,65 @@ export const TeamRosterWidget = ({ teamId }: TeamRosterWidgetProps) => {
       id: '2',
       employee_id: 'emp-2',
       role: 'developer',
+      experience: '5 years',
+      projects: ['REST API Refactor', 'Database Optimization', 'Microservices Migration'],
       employees: {
         id: 'emp-2',
         full_name: 'Mike Chen',
-        position: 'Software Engineer',
+        position: 'Backend Developer',
         email: 'mike.c@company.com'
       }
     },
     {
       id: '3',
       employee_id: 'emp-3',
-      role: 'designer',
+      role: 'developer',
+      experience: '4 years',
+      projects: ['Admin Dashboard', 'Customer Portal', 'Mobile API Client'],
       employees: {
         id: 'emp-3',
-        full_name: 'Alex Rivera',
-        position: 'UX Designer',
-        email: 'alex.r@company.com'
+        full_name: 'Emma Davis',
+        position: 'Frontend Developer',
+        email: 'emma.d@company.com'
       }
     },
     {
       id: '4',
       employee_id: 'emp-4',
-      role: 'qa engineer',
+      role: 'devops',
+      experience: '6 years',
+      projects: ['CI/CD Pipeline', 'AWS Infrastructure', 'Monitoring System'],
       employees: {
         id: 'emp-4',
-        full_name: 'Emma Davis',
+        full_name: 'Alex Kumar',
+        position: 'DevOps Engineer',
+        email: 'alex.k@company.com'
+      }
+    },
+    {
+      id: '5',
+      employee_id: 'emp-5',
+      role: 'qa engineer',
+      experience: '3 years',
+      projects: ['API Testing Suite', 'Load Testing', 'E2E Automation'],
+      employees: {
+        id: 'emp-5',
+        full_name: 'Lisa Park',
         position: 'QA Engineer',
-        email: 'emma.d@company.com'
+        email: 'lisa.p@company.com'
+      }
+    },
+    {
+      id: '6',
+      employee_id: 'emp-6',
+      role: 'architect',
+      experience: '10 years',
+      projects: ['API Design Standards', 'GraphQL Implementation', 'API Security'],
+      employees: {
+        id: 'emp-6',
+        full_name: 'Tom Rodriguez',
+        position: 'API Architect',
+        email: 'tom.r@company.com'
       }
     }
   ];
@@ -85,40 +121,61 @@ export const TeamRosterWidget = ({ teamId }: TeamRosterWidgetProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5 text-primary" />
-          Team Roster
+          {teamName}
         </CardTitle>
+        <p className="text-sm text-muted-foreground mt-1">{teamMembers.length} members</p>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-[500px] overflow-y-auto">
           {teamMembers.map((member) => (
             <div 
               key={member.id} 
-              className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
+              className="bg-gradient-to-r from-secondary/40 to-secondary/20 rounded-lg p-4 hover:shadow-md transition-all border border-border hover:border-primary/30"
             >
-              <Avatar className="h-12 w-12 border-2 border-primary/20">
-                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white">
-                  {getInitials(member.employees?.full_name || 'U')}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold truncate">{member.employees?.full_name}</h4>
-                  {getStatusBadge(member.employee_id)}
+              <div className="flex items-start gap-3 mb-3">
+                <Avatar className="h-12 w-12 border-2 border-primary/20">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white">
+                    {getInitials(member.employees?.full_name || 'U')}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="font-semibold text-sm">{member.employees?.full_name}</h4>
+                    {getStatusBadge(member.employee_id)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{member.employees?.position}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline" className="text-xs capitalize">{member.role}</Badge>
+                    <span className="text-xs text-muted-foreground">• {member.experience}</span>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
-                <p className="text-xs text-muted-foreground">{member.employees?.position}</p>
               </div>
 
-              <div className="flex gap-1">
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                  <Mail className="h-4 w-4" />
+              {/* Recent Projects */}
+              <div className="bg-secondary/50 rounded p-2 mb-3">
+                <p className="text-xs font-medium mb-1.5 text-muted-foreground">Recent Projects:</p>
+                <div className="flex flex-wrap gap-1">
+                  {member.projects.slice(0, 3).map((project, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-xs">
+                      {project}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button size="sm" variant="ghost" className="flex-1 text-xs">
+                  <Mail className="h-3 w-3 mr-1" />
+                  Contact
                 </Button>
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                  <ClipboardList className="h-4 w-4" />
+                <Button size="sm" variant="ghost" className="flex-1 text-xs">
+                  <ClipboardList className="h-3 w-3 mr-1" />
+                  Tasks
                 </Button>
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                  <UserCircle className="h-4 w-4" />
+                <Button size="sm" variant="ghost" className="flex-1 text-xs">
+                  <UserCircle className="h-3 w-3 mr-1" />
+                  Details
                 </Button>
               </div>
             </div>

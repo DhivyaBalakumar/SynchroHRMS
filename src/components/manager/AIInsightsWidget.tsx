@@ -64,12 +64,20 @@ export const AIInsightsWidget = ({ managerId }: AIInsightsWidgetProps) => {
   };
 
   const markAsActioned = async (insightId: string) => {
+    // For demo data (string IDs), just remove from local state
+    if (typeof insightId === 'string' && !insightId.includes('-')) {
+      setInsights(insights.filter(i => i.id !== insightId));
+      return;
+    }
+
+    // For real database records (UUID), update in database
     try {
-      await supabase
+      const { error } = await supabase
         .from('manager_insights')
         .update({ is_actioned: true, is_read: true })
         .eq('id', insightId);
       
+      if (error) throw error;
       loadInsights();
     } catch (error) {
       console.error('Error marking insight as actioned:', error);
