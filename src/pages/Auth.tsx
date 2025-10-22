@@ -253,8 +253,10 @@ const Auth = () => {
             description: `Welcome to SynchroHR! Opening your ${selectedRole} dashboard...`,
           });
 
-          // Navigate immediately since user is now signed in
-          navigate(`/dashboard/${selectedRole}`, { replace: true });
+          // Use window.location for full page reload to ensure auth state is properly set
+          setTimeout(() => {
+            window.location.href = `/dashboard/${selectedRole}`;
+          }, 1500);
         }
       }
     } catch (error: any) {

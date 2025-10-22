@@ -13,14 +13,21 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    } else if (!loading && user && requiredRole && userRole && !requiredRole.includes(userRole)) {
+    // Only redirect after loading is complete
+    if (loading) return;
+    
+    if (!user) {
+      navigate('/auth', { replace: true });
+      return;
+    }
+    
+    if (requiredRole && userRole && !requiredRole.includes(userRole)) {
       // Redirect to appropriate dashboard based on role
-      navigate(`/dashboard/${userRole}`);
+      navigate(`/dashboard/${userRole}`, { replace: true });
     }
   }, [user, userRole, loading, navigate, requiredRole]);
 
+  // Show loading state while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -29,11 +36,8 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     );
   }
 
-  if (!user) {
-    return null;
-  }
-
-  if (requiredRole && userRole && !requiredRole.includes(userRole)) {
+  // Don't render anything while redirecting
+  if (!user || (requiredRole && userRole && !requiredRole.includes(userRole))) {
     return null;
   }
 
