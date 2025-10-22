@@ -27,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending rejection email to:", candidateEmail);
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const mailFrom = Deno.env.get("MAIL_FROM") || "SynchroHR <onboarding@resend.dev>";
+    const mailFrom = "SynchroHR <synchro-hr@synchrohr.com>";
     
     if (!resendApiKey) {
       throw new Error("RESEND_API_KEY not configured");
@@ -36,23 +36,30 @@ const handler = async (req: Request): Promise<Response> => {
     const emailHtml = `
 <!DOCTYPE html>
 <html>
-<body style="font-family:Arial, sans-serif; background-color:#f4f4f5; padding:20px;">
-  <div style="max-width:600px; margin:auto; background:#ffffff; padding:30px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-    <h2 style="color:#333333;">Application Update</h2>
-    <p>Dear ${candidateName},</p>
-    <p>Thank you for your interest in the <strong>${jobTitle}</strong> position at SynchroHR and for taking the time to apply.</p>
-    <p>After careful consideration, we regret to inform you that we have decided to move forward with other candidates whose qualifications more closely match our current needs.</p>
-    
-    <div style="background:#f9fafb; padding:20px; border-left:4px solid #2F80ED; margin:20px 0;">
-      <p style="margin:0; color:#555555;">We encourage you to explore other opportunities with us in the future. Your profile will remain in our system for consideration in upcoming roles that may be a better fit.</p>
+<head>
+  <title>Status Update</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; }
+    .header { background-color: #d9534f; color: white; padding: 10px; text-align: center; }
+    .content { padding: 20px; }
+    .footer { font-size: 12px; color: #777; padding: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Application Status Update</h2>
     </div>
-    
-    <p>We appreciate the time and effort you invested in your application and wish you the best of luck in your job search.</p>
-    
-    <p style="margin-top:30px;">Best regards,<br><strong>The SynchroHR Team</strong></p>
-    
-    <hr style="margin:30px 0; border:none; border-top:1px solid #e5e7eb;"/>
-    <p style="font-size:12px; color:#777777;">SynchroHR &copy; 2025. All rights reserved.</p>
+    <div class="content">
+      <p>Dear ${candidateName},</p>
+      <p>Thank you for taking the time to apply for the <strong>${jobTitle}</strong> position at SynchroHR.</p>
+      <p>After careful consideration, we regret to inform you that we will not be moving forward with your application at this time.</p>
+      <p>We wish you all the best in your future endeavors.</p>
+    </div>
+    <div class="footer">
+      <p>Best regards,<br>SynchroHR Team<br>SynchroHR<br><a href="mailto:synchro-hr@synchrohr.com">synchro-hr@synchrohr.com</a></p>
+    </div>
   </div>
 </body>
 </html>

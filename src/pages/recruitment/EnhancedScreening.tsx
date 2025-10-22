@@ -104,14 +104,26 @@ const EnhancedScreening = () => {
 
   const runBatchAIScreening = async () => {
     setProcessing(true);
-    const pendingResumes = resumes.filter(r => r.screening_status === 'pending');
+    
+    const pendingResumes = resumes.filter(r => 
+      r.screening_status === 'pending' && 
+      r.source === 'real'  // Only process real applicants
+    );
+    
+    if (pendingResumes.length === 0) {
+      toast({
+        title: 'No Pending Resumes',
+        description: 'All real applicant resumes have been screened.',
+      });
+      setProcessing(false);
+      return;
+    }
 
     toast({
-      title: 'AI Screening Started',
-      description: `Processing ${pendingResumes.length} resumes with AI...`,
+      title: 'Starting AI Screening',
+      description: `Processing ${pendingResumes.length} real applicants with automatic email notifications...`,
     });
 
-    // Real AI batch screening using edge function
     let successCount = 0;
     let errorCount = 0;
 
@@ -130,6 +142,9 @@ const EnhancedScreening = () => {
         } else if (data?.success) {
           successCount++;
         }
+        
+        // Delay between requests to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1500));
       } catch (err) {
         console.error('Exception during AI screening:', err);
         errorCount++;
@@ -141,7 +156,7 @@ const EnhancedScreening = () => {
     if (errorCount === 0) {
       toast({
         title: 'AI Screening Complete',
-        description: `Successfully analyzed ${successCount} resumes`,
+        description: `Successfully analyzed ${successCount} resumes. Emails sent automatically.`,
       });
     } else {
       toast({
@@ -281,23 +296,30 @@ const EnhancedScreening = () => {
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="text-xl font-bold">{resume.candidate_name}</h3>
-                            {resume.source === 'demo' ? (
+                            {resume.source === 'real' ? (
+                              <Badge variant="default" className="bg-blue-600">
+                                Real Applicant
+                              </Badge>
+                            ) : (
                               <Badge variant="secondary" className="flex items-center gap-1">
                                 <FlaskConical className="h-3 w-3" />
                                 Demo Data
                               </Badge>
-                            ) : (
-                              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                                Production Data
-                              </Badge>
                             )}
                             {resume.ai_score && (
-                              <Badge className={getScoreBgColor(resume.ai_score)}>
-                                <Target className="h-3 w-3 mr-1" />
-                                <span className={getScoreColor(resume.ai_score)}>
-                                  {resume.ai_score}/100
-                                </span>
-                              </Badge>
+                              <>
+                                <Badge className={getScoreBgColor(resume.ai_score)}>
+                                  <Target className="h-3 w-3 mr-1" />
+                                  <span className={getScoreColor(resume.ai_score)}>
+                                    AI: {resume.ai_score}/100
+                                  </span>
+                                </Badge>
+                                {resume.ai_analysis?.ats_score && (
+                                  <Badge variant="secondary" className="bg-purple-600 text-white">
+                                    ATS: {resume.ai_analysis.ats_score}/100
+                                  </Badge>
+                                )}
+                              </>
                             )}
                           </div>
                           <p className="text-sm text-muted-foreground mb-1">
@@ -368,7 +390,7 @@ const EnhancedScreening = () => {
                       )}
 
                       {/* Actions */}
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 items-center">
                         {resume.file_url && (
                           <Button
                             variant="outline"
@@ -379,23 +401,18 @@ const EnhancedScreening = () => {
                           </Button>
                         )}
                         
-                        {resume.screening_status === 'pending' && (
-                          <>
-                            <Button
-                              onClick={() => handleDecision(resume.id, 'selected')}
-                              className="bg-green-500 hover:bg-green-600"
-                            >
-                              <CheckCircle2 className="h-4 w-4 mr-2" />
-                              Select
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              onClick={() => handleDecision(resume.id, 'rejected')}
-                            >
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Reject
-                            </Button>
-                          </>
+                        {resume.screening_status === 'selected' && (
+                          <Badge variant="default" className="bg-green-600 px-4 py-2">
+                            <CheckCircle2 className="h-4 w-4 mr-1" />
+                            Auto-Selected
+                          </Badge>
+                        )}
+                        
+                        {resume.screening_status === 'rejected' && (
+                          <Badge variant="destructive" className="px-4 py-2">
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Auto-Rejected
+                          </Badge>
                         )}
                       </div>
                     </Card>

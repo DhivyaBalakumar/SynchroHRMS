@@ -31,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending selection email to:", candidateEmail);
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const mailFrom = Deno.env.get("MAIL_FROM") || "SynchroHR <onboarding@resend.dev>";
+    const mailFrom = "SynchroHR <synchro-hr@synchrohr.com>";
     
     if (!resendApiKey) {
       throw new Error("RESEND_API_KEY not configured");
@@ -40,33 +40,30 @@ const handler = async (req: Request): Promise<Response> => {
     const emailHtml = `
 <!DOCTYPE html>
 <html>
-<body style="font-family:Arial, sans-serif; background-color:#f9fafb; padding:20px;">
-  <div style="max-width:600px; margin:auto; background:#ffffff; padding:30px; border-radius:8px; box-shadow:0 1px 5px rgba(0,0,0,0.1);">
-    <h2 style="color:#27AE60;">Congratulations, ${candidateName}!</h2>
-    <p>We are pleased to inform you that your application for the <strong>${jobTitle}</strong> position has been shortlisted.</p>
-    <p>You have been selected to proceed to the next stage: an AI-powered video interview.</p>
-    
-    <div style="background:#f4f4f5; padding:20px; border-radius:5px; margin:20px 0;">
-      <h3 style="color:#2F80ED; margin-top:0;">Next Steps:</h3>
-      <ol style="color:#333333;">
-        <li>Click the button below to access your personalized interview portal</li>
-        <li>You can update your resume if needed</li>
-        <li>Complete the AI video interview at your convenience</li>
-        <li>The interview typically takes 20-30 minutes</li>
-      </ol>
+<head>
+  <title>Selection Notification</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; }
+    .header { background-color: #4CAF50; color: white; padding: 10px; text-align: center; }
+    .content { padding: 20px; }
+    .footer { font-size: 12px; color: #777; padding: 10px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Congratulations! You are Selected</h2>
     </div>
-
-    <a href="${interviewLink}" style="display:inline-block; background-color:#27AE60; color:#ffffff; padding:14px 28px; border-radius:5px; text-decoration:none; font-weight:bold; margin: 20px 0;">Start Interview</a>
-    
-    <p style="color:#666666; font-size:14px;">⏰ This link is valid until ${tokenExpiry}</p>
-    
-    <p>If the button doesn't work, copy and paste this link:</p>
-    <p style="font-size:12px; color:#555555; word-break:break-all;">${interviewLink}</p>
-    
-    <p style="margin-top:30px;">Best of luck! We look forward to learning more about you.</p>
-    
-    <hr style="margin:30px 0; border:none; border-top:1px solid #e5e7eb;"/>
-    <p style="font-size:12px; color:#999999;">SynchroHR &copy; 2025. All rights reserved.</p>
+    <div class="content">
+      <p>Dear ${candidateName},</p>
+      <p>We are excited to inform you that you have been selected for the <strong>${jobTitle}</strong> position at SynchroHR.</p>
+      <p>Our HR team will reach out soon with details on next steps.</p>
+      <p>Thank you for your time and interest. We look forward to working with you!</p>
+    </div>
+    <div class="footer">
+      <p>Best regards,<br>SynchroHR Team<br>SynchroHR<br><a href="mailto:synchro-hr@synchrohr.com">synchro-hr@synchrohr.com</a></p>
+    </div>
   </div>
 </body>
 </html>

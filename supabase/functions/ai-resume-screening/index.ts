@@ -159,13 +159,24 @@ Be objective, thorough, and focus on matching the candidate's qualifications to 
       };
     }
 
-    // Update resume with AI analysis
+    // Calculate ATS score (composite of all factors)
+    const atsScore = Math.round(
+      (analysis.skills_match * 0.4) + 
+      (analysis.experience_match * 0.35) + 
+      (analysis.education_match * 0.25)
+    );
+
+    // Determine final status based on ATS score
+    const finalStatus = atsScore >= 75 ? 'selected' : 'rejected';
+
+    // Update resume with AI analysis and ATS score
     const { error: updateError } = await supabaseClient
       .from('resumes')
       .update({
         ai_score: analysis.ai_score,
-        ai_analysis: analysis,
-        screening_status: analysis.ai_score >= 75 ? 'selected' : 'pending',
+        ai_analysis: { ...analysis, ats_score: atsScore },
+        screening_status: finalStatus,
+        pipeline_stage: finalStatus,
         updated_at: new Date().toISOString()
       })
       .eq('id', resume_id);
@@ -180,19 +191,74 @@ Be objective, thorough, and focus on matching the candidate's qualifications to 
       .from('pipeline_audit_logs')
       .insert({
         resume_id: resume_id,
-        action: 'ai_screening_completed',
+        action: `ai_screening_${finalStatus}`,
         details: {
           ai_score: analysis.ai_score,
-          recommendation: analysis.recommendation
+          ats_score: atsScore,
+          recommendation: analysis.recommendation,
+          auto_decision: true
         }
       });
 
-    console.log('Resume analysis completed successfully');
+    console.log(`Resume analysis completed: ${finalStatus} (ATS: ${atsScore})`);
+
+    // Send appropriate email based on decision
+    if (finalStatus === 'selected') {
+      console.log('Sending selection email...');
+      
+      const selectionResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-selection-email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          candidateName: resume.candidate_name,
+          candidateEmail: resume.email,
+          jobTitle: resume.job_roles?.title || resume.position_applied,
+          interviewLink: 'https://your-app.com/interview', // Will be updated with actual link
+          tokenExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleString()
+        }),
+      });
+
+      if (!selectionResponse.ok) {
+        console.error('Failed to send selection email');
+      } else {
+        await supabaseClient
+          .from('resumes')
+          .update({ selection_email_sent: true })
+          .eq('id', resume_id);
+        console.log('Selection email sent successfully');
+      }
+    } else {
+      console.log('Sending rejection email...');
+      
+      const rejectionResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-rejection-email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          candidateName: resume.candidate_name,
+          candidateEmail: resume.email,
+          jobTitle: resume.job_roles?.title || resume.position_applied,
+        }),
+      });
+
+      if (!rejectionResponse.ok) {
+        console.error('Failed to send rejection email');
+      } else {
+        console.log('Rejection email sent successfully');
+      }
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        analysis: analysis 
+        analysis: { ...analysis, ats_score: atsScore },
+        status: finalStatus,
+        email_sent: true
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

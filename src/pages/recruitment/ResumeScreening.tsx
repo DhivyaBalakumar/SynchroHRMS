@@ -85,36 +85,30 @@ export const ResumeScreening = () => {
 
     try {
       const resume = resumes.find(r => r.id === resumeId);
-      const jobRole = jobRoles.find(jr => jr.id === resume.job_role_id);
 
-      // Simulate resume text extraction (in production, use proper PDF parser)
-      const resumeText = `Candidate: ${resume.candidate_name}\nEmail: ${resume.email}`;
+      // Skip AI screening for demo data
+      if (resume?.source === 'demo') {
+        toast({
+          title: 'Demo Data',
+          description: 'Cannot process demo applicants. Only real applicants are screened.',
+          variant: 'destructive',
+        });
+        setProcessing(null);
+        return;
+      }
 
-      const { data, error } = await supabase.functions.invoke('parse-resume', {
+      const { data, error } = await supabase.functions.invoke('ai-resume-screening', {
         body: {
-          resumeText,
-          jobRoleTitle: jobRole?.title || 'General Position',
-          jobRequirements: jobRole?.requirements || [],
+          resume_id: resumeId,
+          job_role_id: resume?.job_role_id,
         },
       });
 
       if (error) throw error;
 
-      // Update resume with AI analysis
-      const { error: updateError } = await supabase
-        .from('resumes')
-        .update({
-          ai_score: data.analysis.overall_score,
-          ai_analysis: data.analysis,
-          screening_status: 'pending',
-        })
-        .eq('id', resumeId);
-
-      if (updateError) throw updateError;
-
       toast({
-        title: 'AI Screening Complete',
-        description: `Score: ${data.analysis.overall_score}/100`,
+        title: data.status === 'selected' ? 'Candidate Selected!' : 'Candidate Rejected',
+        description: `AI Score: ${data.analysis.ai_score} | ATS: ${data.analysis.ats_score} | Email sent automatically`,
       });
 
       loadData();
@@ -259,7 +253,7 @@ export const ResumeScreening = () => {
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Resume Screening</h1>
           <p className="text-muted-foreground">
-            AI-powered screening with manual override
+            Fully automated AI-driven screening & evaluation
           </p>
         </div>
 
@@ -314,11 +308,23 @@ export const ResumeScreening = () => {
                       {resume.ai_score && (
                         <Badge className={getScoreColor(resume.ai_score)}>
                           <Star className="h-4 w-4 mr-1" />
-                          {resume.ai_score}/100
+                          AI Score: {resume.ai_score}/100
                         </Badge>
                       )}
-                      {resume.manual_override && (
-                        <Badge variant="outline">Manual Override</Badge>
+                      {resume.ai_analysis?.ats_score && (
+                        <Badge variant="secondary" className="bg-purple-600 text-white">
+                          ATS: {resume.ai_analysis.ats_score}/100
+                        </Badge>
+                      )}
+                      {resume.screening_status === 'selected' && (
+                        <Badge variant="default" className="bg-green-600">
+                          Auto-Selected
+                        </Badge>
+                      )}
+                      {resume.screening_status === 'rejected' && (
+                        <Badge variant="destructive">
+                          Auto-Rejected
+                        </Badge>
                       )}
                       {resume.interview_tokens?.length > 0 && (
                         <Badge variant="secondary">
@@ -372,33 +378,15 @@ export const ResumeScreening = () => {
                         {processing === resume.id ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Processing...
+                            AI Screening...
                           </>
                         ) : (
-                          'Run AI Screening'
+                          <>
+                            <Star className="h-4 w-4 mr-2" />
+                            Run AI Screening
+                          </>
                         )}
                       </Button>
-                    )}
-
-                    {resume.screening_status === 'ai_reviewed' && (
-                      <>
-                        <Button
-                          onClick={() => handleManualDecision(resume.id, 'selected')}
-                          size="sm"
-                          variant="default"
-                        >
-                          <CheckCircle2 className="h-4 w-4 mr-2" />
-                          Select
-                        </Button>
-                        <Button
-                          onClick={() => handleManualDecision(resume.id, 'rejected')}
-                          size="sm"
-                          variant="destructive"
-                        >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Reject
-                        </Button>
-                      </>
                     )}
 
                     {resume.interview_tokens?.length > 0 && resume.interview_tokens[0].interview_completed && (
