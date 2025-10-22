@@ -134,7 +134,7 @@ export const ResumeScreening = () => {
     if (pendingResumes.length === 0) {
       toast({
         title: 'No Pending Resumes',
-        description: 'There are no real pending resumes to screen.',
+        description: 'There are no real pending resumes to screen. Demo data is handled separately.',
         variant: 'destructive',
       });
       return;
@@ -147,8 +147,8 @@ export const ResumeScreening = () => {
     let failed = 0;
 
     toast({
-      title: 'Bulk AI Screening Started',
-      description: `Processing ${pendingResumes.length} applicants...`,
+      title: 'AI Bulk Screening Started',
+      description: `Processing ${pendingResumes.length} real applicants with ATS scoring...`,
     });
 
     for (const resume of pendingResumes) {
@@ -181,8 +181,9 @@ export const ResumeScreening = () => {
     loadData();
 
     toast({
-      title: 'Bulk Screening Complete',
-      description: `Processed: ${processed} | Selected: ${selected} | Rejected: ${rejected} | Failed: ${failed}`,
+      title: '✅ Bulk Screening Complete!',
+      description: `✓ Processed: ${processed} | ✓ Selected: ${selected} (ATS ≥75) | ✗ Rejected: ${rejected} | ⚠ Failed: ${failed}`,
+      duration: 5000,
     });
   };
 

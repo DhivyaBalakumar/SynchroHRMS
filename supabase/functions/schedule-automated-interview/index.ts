@@ -57,8 +57,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Interview token created:", tokenData.id);
 
-    // Generate interview link
-    const interviewLink = `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '')}/interview/login?token=${token}`;
+    // Generate interview link - use the app URL
+    const appUrl = Deno.env.get("SUPABASE_URL")?.includes('localhost') 
+      ? 'http://localhost:8080'
+      : Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '.lovableproject.com') || '';
+    const interviewLink = `${appUrl}/interview/login?token=${token}`;
 
     // Calculate scheduled time (delay from now)
     const scheduledFor = new Date();
