@@ -167,7 +167,7 @@ text
 git clone https://github.com/DhivyaBalakumar/SynchroHRMS.git
 cd SynchroHRMS
 npm install
-text
+
 Visit [http://localhost:5173/](http://localhost:5173/).
 
 ---
