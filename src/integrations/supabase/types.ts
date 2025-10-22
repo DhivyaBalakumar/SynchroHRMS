@@ -411,10 +411,15 @@ export type Database = {
       interviews: {
         Row: {
           ai_evaluation: Json | null
+          ai_score: number | null
+          ai_summary: string | null
+          audio_url: string | null
           candidate_email: string
           candidate_name: string
+          combined_url: string | null
           completed_at: string | null
           created_at: string
+          duration_seconds: number | null
           feedback: Json | null
           id: string
           interview_link: string | null
@@ -429,13 +434,19 @@ export type Database = {
           status: Database["public"]["Enums"]["interview_status"]
           transcript: string | null
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           ai_evaluation?: Json | null
+          ai_score?: number | null
+          ai_summary?: string | null
+          audio_url?: string | null
           candidate_email: string
           candidate_name: string
+          combined_url?: string | null
           completed_at?: string | null
           created_at?: string
+          duration_seconds?: number | null
           feedback?: Json | null
           id?: string
           interview_link?: string | null
@@ -450,13 +461,19 @@ export type Database = {
           status?: Database["public"]["Enums"]["interview_status"]
           transcript?: string | null
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           ai_evaluation?: Json | null
+          ai_score?: number | null
+          ai_summary?: string | null
+          audio_url?: string | null
           candidate_email?: string
           candidate_name?: string
+          combined_url?: string | null
           completed_at?: string | null
           created_at?: string
+          duration_seconds?: number | null
           feedback?: Json | null
           id?: string
           interview_link?: string | null
@@ -471,6 +488,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["interview_status"]
           transcript?: string | null
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: [
           {
