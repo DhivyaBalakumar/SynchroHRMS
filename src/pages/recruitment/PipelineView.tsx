@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Mail, Video, FileText, Calendar } from 'lucide-react';
+import { Loader2, Mail, Video, FileText, Calendar, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { useDemoModeFilter } from '@/hooks/useDemoModeFilter';
+import { DemoModeToggle } from '@/components/DemoModeToggle';
 
 type PipelineStage = 'applicants' | 'selected' | 'rejected';
 
@@ -17,7 +18,7 @@ export const PipelineView = () => {
     rejected: [],
   });
   const { toast } = useToast();
-  const { applyFilter } = useDemoModeFilter();
+  const { applyFilter, isDemoMode } = useDemoModeFilter();
 
   useEffect(() => {
     loadCandidates();
@@ -26,10 +27,17 @@ export const PipelineView = () => {
   const loadCandidates = async () => {
     setLoading(true);
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('resumes')
       .select('*, job_roles(title, department), interview_tokens(token, expires_at, interview_completed)')
       .order('created_at', { ascending: false });
+
+    // Filter out demo data in production mode
+    if (!isDemoMode) {
+      query = query.neq('source', 'demo');
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       toast({
@@ -38,7 +46,7 @@ export const PipelineView = () => {
         variant: 'destructive',
       });
     } else {
-      // Apply demo mode filter
+      // Apply additional client-side filter for safety
       const filteredData = applyFilter(data || []);
       
       const grouped: Record<PipelineStage, any[]> = {
@@ -92,11 +100,31 @@ export const PipelineView = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Candidate Pipeline</h1>
-          <p className="text-muted-foreground">
-            Visual overview of candidate journey
-          </p>
+        <div className="mb-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">Candidate Pipeline</h1>
+              <p className="text-muted-foreground">
+                Visual overview of candidate journey
+              </p>
+            </div>
+            <DemoModeToggle />
+          </div>
+          
+          {/* Production Mode Banner */}
+          {!isDemoMode && (
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
+              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+                  Production mode is active.
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                  Only real data from your database will be displayed. All demo/sample data is hidden.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

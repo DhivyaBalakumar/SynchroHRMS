@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Video, FileText, Brain, Clock, CheckCircle2, XCircle, Play } from 'lucide-react';
+import { Loader2, Video, FileText, Brain, Clock, CheckCircle2, XCircle, Play, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   Select,
@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { InterviewDetailView } from '@/components/InterviewDetailView';
+import { useDemoModeFilter } from '@/hooks/useDemoModeFilter';
+import { DemoModeToggle } from '@/components/DemoModeToggle';
 
 export const InterviewManagement = () => {
   const [interviews, setInterviews] = useState<any[]>([]);
@@ -22,6 +24,7 @@ export const InterviewManagement = () => {
   const [jobRoles, setJobRoles] = useState<any[]>([]);
   const [selectedInterview, setSelectedInterview] = useState<any | null>(null);
   const { toast } = useToast();
+  const { isDemoMode } = useDemoModeFilter();
 
   useEffect(() => {
     loadData();
@@ -41,7 +44,7 @@ export const InterviewManagement = () => {
     // Load interviews with resume and job role info
     let query = supabase
       .from('interviews')
-      .select('*, resumes(id, candidate_name, email, job_role_id, job_roles(title, department))')
+      .select('*, resumes(id, candidate_name, email, job_role_id, source, job_roles(title, department))')
       .order('created_at', { ascending: false });
 
     if (statusFilter !== 'all') {
@@ -58,6 +61,13 @@ export const InterviewManagement = () => {
       });
     } else {
       let filteredData = data || [];
+      
+      // Filter out demo interviews in production mode
+      if (!isDemoMode) {
+        filteredData = filteredData.filter(
+          (interview: any) => interview.resumes?.source !== 'demo'
+        );
+      }
       
       if (selectedJobRole !== 'all') {
         filteredData = filteredData.filter(
@@ -84,11 +94,31 @@ export const InterviewManagement = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Interview Management</h1>
-          <p className="text-muted-foreground">
-            View and manage all AI video interviews
-          </p>
+        <div className="mb-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">Interview Management</h1>
+              <p className="text-muted-foreground">
+                View and manage all AI video interviews
+              </p>
+            </div>
+            <DemoModeToggle />
+          </div>
+          
+          {/* Production Mode Banner */}
+          {!isDemoMode && (
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3 mb-6">
+              <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+                  Production mode is active.
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                  Only real interviews from actual applicants will be displayed. Demo interviews are hidden.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mb-6 flex gap-4">

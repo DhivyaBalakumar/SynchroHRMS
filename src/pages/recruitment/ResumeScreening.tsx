@@ -14,7 +14,8 @@ import {
   TrendingUp,
   Filter,
   Video,
-  Brain
+  Brain,
+  Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -24,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useDemoModeFilter } from '@/hooks/useDemoModeFilter';
+import { DemoModeToggle } from '@/components/DemoModeToggle';
 
 export const ResumeScreening = () => {
   const navigate = useNavigate();
@@ -34,6 +37,7 @@ export const ResumeScreening = () => {
   const [jobRoles, setJobRoles] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('pending');
   const { toast } = useToast();
+  const { applyFilter, isDemoMode } = useDemoModeFilter();
 
   useEffect(() => {
     loadData();
@@ -68,6 +72,11 @@ export const ResumeScreening = () => {
       query = query.eq('screening_status', 'rejected');
     }
 
+    // Filter out demo data in production mode
+    if (!isDemoMode) {
+      query = query.neq('source', 'demo');
+    }
+
     const { data, error } = await query;
 
     if (error) {
@@ -77,7 +86,8 @@ export const ResumeScreening = () => {
         variant: 'destructive',
       });
     } else {
-      setResumes(data || []);
+      // Additional client-side filtering for safety
+      setResumes(applyFilter(data || []));
     }
 
     setLoading(false);
@@ -314,31 +324,52 @@ export const ResumeScreening = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
-      <div className="mb-8 flex justify-between items-start">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Resume Screening</h1>
-          <p className="text-muted-foreground">
-            Fully automated AI-driven screening & evaluation
-          </p>
+      <div className="mb-6">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">AI-Powered Resume Screening</h1>
+            <p className="text-muted-foreground">
+              AI assists - You decide
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <DemoModeToggle />
+            <Button 
+              onClick={runBulkAIScreening}
+              disabled={processing !== null}
+              size="lg"
+              className="gap-2"
+            >
+              {processing === 'bulk' ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Brain className="h-4 w-4" />
+                  Run AI Screening
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-        <Button 
-          onClick={runBulkAIScreening}
-          disabled={processing !== null}
-          size="lg"
-          className="gap-2"
-        >
-          {processing === 'bulk' ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            <>
-              <Brain className="h-4 w-4" />
-              Run AI Bulk Screening
-            </>
-          )}
-        </Button>
+
+        {/* Production Mode Banner */}
+        {!isDemoMode && (
+          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
+            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+                Production mode is active.
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                Only real data from your database will be displayed. All demo/sample data is hidden. 
+                To add real data, use the application features to create employees, job roles, resumes, etc.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
         <div className="mb-6 flex gap-4 items-center">
