@@ -208,13 +208,16 @@ const Auth = () => {
           // Insert role directly (RLS is disabled on user_roles for system operations)
           const { error: roleError } = await supabase
             .from('user_roles')
-            .insert({
+            .upsert({
               user_id: data.user.id,
               role: selectedRole as 'admin' | 'employee' | 'hr' | 'intern' | 'manager' | 'senior_manager',
+            }, {
+              onConflict: 'user_id'
             });
 
           if (roleError) {
             console.error('Role insertion error:', roleError);
+            setLoading(false);
             throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
           }
 
@@ -239,6 +242,7 @@ const Auth = () => {
 
           if (signInError) {
             console.error('Auto sign-in error:', signInError);
+            setLoading(false);
             // If auto sign-in fails, show success but ask them to log in
             toast({
               title: 'Account created!',
@@ -253,11 +257,18 @@ const Auth = () => {
             description: `Welcome to SynchroHR!`,
           });
 
-          // Navigate immediately using react-router
+          // Small delay to ensure auth state propagates
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
+          // Explicitly set loading false before navigation
+          setLoading(false);
+          
+          // Navigate using react-router
           navigate(`/dashboard/${selectedRole}`, { replace: true });
         }
       }
     } catch (error: any) {
+      console.error('Signup/Login error:', error);
       if (error.message?.includes('already registered as')) {
         toast({
           title: 'Account Already Exists',
