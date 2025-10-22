@@ -23,6 +23,8 @@ import {
   Bot,
   Award,
   Database,
+  Crown,
+  Building2,
 } from "lucide-react";
 
 import employeeImage from "@/assets/employee-role.png";
@@ -88,6 +90,32 @@ const Index = () => {
         "Mentor connection and guidance",
         "Learning path and skill tracking",
         "Feedback and growth badges"
+      ],
+    },
+    {
+      id: "senior_manager",
+      title: "Senior Manager",
+      description: "Strategic leadership with cross-department insights, advanced analytics, and executive decision-making tools.",
+      Icon: Crown,
+      image: managerImage,
+      features: [
+        "Multi-department oversight and analytics",
+        "Strategic planning and forecasting",
+        "Executive reports and KPIs",
+        "Budget and resource allocation"
+      ],
+    },
+    {
+      id: "admin",
+      title: "Management Admin",
+      description: "Complete system control with full access to all features, user management, and platform configuration.",
+      Icon: Building2,
+      image: hrImage,
+      features: [
+        "Full system access and control",
+        "User and role management",
+        "Platform configuration settings",
+        "System-wide analytics and monitoring"
       ],
     },
   ];
@@ -298,7 +326,7 @@ const Index = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {roles.map((role, idx) => (
             <RoleCard
               key={role.id}
