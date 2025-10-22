@@ -33,6 +33,9 @@ import InterviewManagement from "./pages/recruitment/InterviewManagement";
 import PipelineView from "./pages/recruitment/PipelineView";
 import AdvancedAnalytics from "./pages/analytics/AdvancedAnalytics";
 import AIInterviewDemo from "./pages/demo/AIInterviewDemo";
+import CareerCoachPage from "./pages/career/CareerCoachPage";
+import PerformanceWallPage from "./pages/manager/PerformanceWallPage";
+import PulseSurveysPage from "./pages/manager/PulseSurveysPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -169,6 +172,36 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredRole={['hr', 'senior_manager']}>
                     <AdvancedAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Career Coach Route */}
+              <Route
+                path="/career/coach"
+                element={
+                  <ProtectedRoute requiredRole={['employee', 'intern', 'manager', 'hr', 'senior_manager']}>
+                    <CareerCoachPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Performance Wall Route */}
+              <Route
+                path="/manager/performance-wall"
+                element={
+                  <ProtectedRoute requiredRole={['manager', 'senior_manager']}>
+                    <PerformanceWallPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Pulse Surveys Route */}
+              <Route
+                path="/manager/pulse-surveys"
+                element={
+                  <ProtectedRoute requiredRole={['hr', 'manager', 'senior_manager']}>
+                    <PulseSurveysPage />
                   </ProtectedRoute>
                 }
               />

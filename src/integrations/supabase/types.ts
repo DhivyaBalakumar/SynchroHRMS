@@ -126,6 +126,39 @@ export type Database = {
           },
         ]
       }
+      career_coaching_sessions: {
+        Row: {
+          ai_recommendations: Json | null
+          created_at: string | null
+          id: string
+          progress_data: Json | null
+          session_type: string
+          updated_at: string | null
+          user_goals: Json | null
+          user_id: string
+        }
+        Insert: {
+          ai_recommendations?: Json | null
+          created_at?: string | null
+          id?: string
+          progress_data?: Json | null
+          session_type: string
+          updated_at?: string | null
+          user_goals?: Json | null
+          user_id: string
+        }
+        Update: {
+          ai_recommendations?: Json | null
+          created_at?: string | null
+          id?: string
+          progress_data?: Json | null
+          session_type?: string
+          updated_at?: string | null
+          user_goals?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       departments: {
         Row: {
           created_at: string
@@ -939,6 +972,44 @@ export type Database = {
           },
         ]
       }
+      performance_rankings: {
+        Row: {
+          created_at: string | null
+          employee_id: string
+          id: string
+          last_updated_at: string | null
+          manager_id: string
+          notes: string | null
+          rank_position: number
+        }
+        Insert: {
+          created_at?: string | null
+          employee_id: string
+          id?: string
+          last_updated_at?: string | null
+          manager_id: string
+          notes?: string | null
+          rank_position: number
+        }
+        Update: {
+          created_at?: string | null
+          employee_id?: string
+          id?: string
+          last_updated_at?: string | null
+          manager_id?: string
+          notes?: string | null
+          rank_position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_rankings_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pipeline_audit_logs: {
         Row: {
           action: string
@@ -1099,6 +1170,128 @@ export type Database = {
           },
         ]
       }
+      pulse_questions: {
+        Row: {
+          created_at: string | null
+          id: string
+          options: Json | null
+          order_index: number
+          question_text: string
+          question_type: string
+          survey_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          options?: Json | null
+          order_index?: number
+          question_text: string
+          question_type: string
+          survey_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          options?: Json | null
+          order_index?: number
+          question_text?: string
+          question_type?: string
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_questions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pulse_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          question_id: string
+          respondent_id: string
+          response_value: Json
+          survey_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          question_id: string
+          respondent_id: string
+          response_value: Json
+          survey_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          question_id?: string
+          respondent_id?: string
+          response_value?: Json
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pulse_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "pulse_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pulse_surveys: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          start_date: string | null
+          status: string
+          target_audience: string
+          target_ids: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          target_audience: string
+          target_ids?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          target_audience?: string
+          target_ids?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       resumes: {
         Row: {
           ai_analysis: Json | null
@@ -1219,6 +1412,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      skill_assessments: {
+        Row: {
+          ai_feedback: string | null
+          assessment_date: string | null
+          created_at: string | null
+          current_level: number
+          id: string
+          skill_name: string
+          target_level: number | null
+          user_id: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          assessment_date?: string | null
+          created_at?: string | null
+          current_level: number
+          id?: string
+          skill_name: string
+          target_level?: number | null
+          user_id: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          assessment_date?: string | null
+          created_at?: string | null
+          current_level?: number
+          id?: string
+          skill_name?: string
+          target_level?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       skills: {
         Row: {
