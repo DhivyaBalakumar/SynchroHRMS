@@ -176,7 +176,7 @@ Visit [http://localhost:5173/](http://localhost:5173/).
 [Deployment Guide](https://github.com/DhivyaBalakumar/SynchroHRMS/blob/main/README.md#-deployment)
 
 Deployed with **Vercel**
-- Custom domain: [synchro-hr.vercel.app](synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app)
+- Custom domain: synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app
 
 **Steps:**
 1. Set environment variables in Vercel.
