@@ -34,6 +34,8 @@ const HRDashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { applyFilter } = useDemoModeFilter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalEmployees: 0,
     openPositions: 0,
@@ -51,59 +53,97 @@ const HRDashboard = () => {
   }, []);
 
   const loadDashboardData = async () => {
-    // Load employees
-    const { data: allEmployees } = await supabase
-      .from('employees')
-      .select('*');
-    const employeeCount = allEmployees?.length || 0;
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Loading HR dashboard data...');
+      
+      // Load employees
+      const { data: allEmployees, error: employeesError } = await supabase
+        .from('employees')
+        .select('*');
+      
+      if (employeesError) {
+        console.error('Error loading employees:', employeesError);
+        throw new Error(`Failed to load employees: ${employeesError.message}`);
+      }
+      const employeeCount = allEmployees?.length || 0;
 
-    // Load job roles
-    const { data: rolesData } = await supabase
-      .from('job_roles')
-      .select('*')
-      .eq('status', 'active');
-    
-    const rolesCount = rolesData?.length || 0;
+      // Load job roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('job_roles')
+        .select('*')
+        .eq('status', 'active');
+      
+      if (rolesError) {
+        console.error('Error loading job roles:', rolesError);
+        throw new Error(`Failed to load job roles: ${rolesError.message}`);
+      }
+      const rolesCount = rolesData?.length || 0;
 
-    // Load resumes with filter
-    const { data: allResumes } = await supabase
-      .from('resumes')
-      .select('*');
-    const filteredResumes = applyFilter(allResumes || []);
-    
-    const pendingResumes = filteredResumes.filter(r => r.screening_status === 'pending');
-    const selectedResumes = filteredResumes.filter(r => r.screening_status === 'selected');
-    const pendingInvitations = filteredResumes.filter(r => 
-      r.screening_status === 'selected' && r.selection_email_sent === true
-    );
+      // Load resumes with filter
+      const { data: allResumes, error: resumesError } = await supabase
+        .from('resumes')
+        .select('*');
+      
+      if (resumesError) {
+        console.error('Error loading resumes:', resumesError);
+        throw new Error(`Failed to load resumes: ${resumesError.message}`);
+      }
+      
+      const filteredResumes = applyFilter(allResumes || []);
+      
+      const pendingResumes = filteredResumes.filter(r => r.screening_status === 'pending');
+      const selectedResumes = filteredResumes.filter(r => r.screening_status === 'selected');
+      const pendingInvitations = filteredResumes.filter(r => 
+        r.screening_status === 'selected' && r.selection_email_sent === true
+      );
 
-    // Load interviews (no source field, so no filter needed)
-    const { count: interviewCount } = await supabase
-      .from('interviews')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'completed');
+      // Load interviews (no source field, so no filter needed)
+      const { count: interviewCount, error: interviewsError } = await supabase
+        .from('interviews')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'completed');
 
-    // Load recent resumes for activity feed
-    const { data: recentResumesData } = await supabase
-      .from('resumes')
-      .select('*, job_roles(title)')
-      .order('created_at', { ascending: false })
-      .limit(10);
-    
-    const filteredRecentResumes = applyFilter(recentResumesData || []).slice(0, 5);
+      if (interviewsError) {
+        console.error('Error loading interviews:', interviewsError);
+        throw new Error(`Failed to load interviews: ${interviewsError.message}`);
+      }
 
-    setStats({
-      totalEmployees: employeeCount,
-      openPositions: rolesCount,
-      pendingResumes: pendingResumes.length,
-      complianceScore: 98,
-      completedInterviews: interviewCount || 0,
-      pendingInvitations: pendingInvitations.length,
-      activeCandidates: selectedResumes.length,
-    });
+      // Load recent resumes for activity feed
+      const { data: recentResumesData, error: recentError } = await supabase
+        .from('resumes')
+        .select('*, job_roles(title)')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (recentError) {
+        console.error('Error loading recent resumes:', recentError);
+        // This is non-critical, so just log it
+      }
+      
+      const filteredRecentResumes = applyFilter(recentResumesData || []).slice(0, 5);
 
-    if (rolesData) setJobRoles(rolesData);
-    setRecentActivities(filteredRecentResumes);
+      setStats({
+        totalEmployees: employeeCount,
+        openPositions: rolesCount,
+        pendingResumes: pendingResumes.length,
+        complianceScore: 98,
+        completedInterviews: interviewCount || 0,
+        pendingInvitations: pendingInvitations.length,
+        activeCandidates: selectedResumes.length,
+      });
+
+      if (rolesData) setJobRoles(rolesData);
+      setRecentActivities(filteredRecentResumes);
+      
+      console.log('HR dashboard data loaded successfully');
+      setLoading(false);
+    } catch (error: any) {
+      console.error('Critical error loading dashboard data:', error);
+      setError(error.message || 'Failed to load dashboard data');
+      setLoading(false);
+    }
   };
 
   const getUrgencyColor = (urgency: string) => {
@@ -159,6 +199,41 @@ const HRDashboard = () => {
       bgColor: 'bg-cyan-500/10'
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading HR Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-6">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              <XCircle className="h-12 w-12 mx-auto" />
+            </div>
+            <h2 className="text-xl font-bold mb-2">Failed to Load Dashboard</h2>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <div className="space-y-2">
+              <Button onClick={() => loadDashboardData()} className="w-full">
+                Try Again
+              </Button>
+              <Button onClick={() => navigate('/')} variant="outline" className="w-full">
+                Go Home
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
