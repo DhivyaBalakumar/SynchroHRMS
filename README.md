@@ -1,12 +1,12 @@
 # SynchroHR – Intelligent HR Management System
-[View on GitHub](https://github.com/DhivyaBalakumar/SynchroHRMS/blob/main/README.md#synchrohr--intelligent-hr-management-system)
+
 
 SynchroHR is an **AI‑powered Human Resource Management System** designed for modern organizations to automate recruitment, conduct AI‑driven video interviews, perform sentiment and emotion analysis, optimize workforce analytics in real time, and manage seamless onboarding and multi-user role-based access.
 
 ---
 
 ## 🚀 Features
-[Full Feature List](https://github.com/DhivyaBalakumar/SynchroHRMS/blob/main/README.md#-features)
+
 
 ### 🔐 Authentication & Access Control
 - Secure multi-role login (Management Admin, HR, Manager, Employee, Intern, Senior Manager)
@@ -87,7 +87,7 @@ SynchroHR is an **AI‑powered Human Resource Management System** designed for m
 ---
 
 ## 🧠 Tech Stack
-[Tech Stack Details](https://github.com/DhivyaBalakumar/SynchroHRMS/blob/main/README.md#-tech-stack)
+
 
 | Layer           | Technology                        |
 |-----------------|-----------------------------------|
@@ -151,7 +151,7 @@ SynchroHR is an **AI‑powered Human Resource Management System** designed for m
 ---
 
 ## ⚙️ Environment Variables
-[Setup Guide](https://github.com/DhivyaBalakumar/SynchroHRMS/blob/main/README.md#%EF%B8%8F-environment-variables)
+
 Create a `.env` file in the project root:
 
 VITE_SUPABASE_URL=https://wapydsvgltbhkvbfaybp.supabase.co
@@ -162,7 +162,7 @@ text
 ---
 
 ## 🧩 Setup & Run Locally
-[Instructions](https://github.com/DhivyaBalakumar/SynchroHRMS/blob/main/README.md#-setup--run-locally)
+
 
 git clone https://github.com/DhivyaBalakumar/SynchroHRMS.git
 cd SynchroHRMS
@@ -173,10 +173,11 @@ Visit [http://localhost:5173/](http://localhost:5173/).
 ---
 
 ## 🏁 Deployment
-[Deployment Guide](https://github.com/DhivyaBalakumar/SynchroHRMS/blob/main/README.md#-deployment)
 
-Deployed with **Vercel**
-- Custom domain: synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app
+
+Deployed with **Vercel**  
+- Custom domain: [synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app](https://synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app)
+
 
 **Steps:**
 1. Set environment variables in Vercel.
