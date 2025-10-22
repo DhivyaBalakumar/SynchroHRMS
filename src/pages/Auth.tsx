@@ -167,7 +167,7 @@ const Auth = () => {
 
         navigate(`/dashboard/${userRole}`);
       } else {
-        // Sign up new user
+        // Sign up new user - role is automatically assigned by database trigger
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -191,21 +191,6 @@ const Auth = () => {
           throw new Error('Failed to create account. Please try again.');
         }
 
-        // Insert role
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .upsert({
-            user_id: data.user.id,
-            role: selectedRole as 'admin' | 'employee' | 'hr' | 'intern' | 'manager' | 'senior_manager',
-          }, {
-            onConflict: 'user_id'
-          });
-
-        if (roleError) {
-          throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
-        }
-
-        // Clear loading BEFORE navigation
         setLoading(false);
 
         toast({
@@ -213,8 +198,8 @@ const Auth = () => {
           description: 'Account created successfully!',
         });
 
-        // Use window.location for signup to ensure clean navigation
-        window.location.href = `/dashboard/${selectedRole}`;
+        // Navigate to dashboard - AuthContext will handle the session
+        navigate(`/dashboard/${selectedRole}`, { replace: true });
       }
     } catch (error: any) {
       setLoading(false);
