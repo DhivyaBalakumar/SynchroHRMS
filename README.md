@@ -176,7 +176,7 @@ Visit [http://localhost:5173/](http://localhost:5173/).
 
 
 Deployed with **Vercel**  
-- Custom domain: [synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app](https://synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app)
+- Custom domain: [synchro-hr-fwc-git-main-dhivyas-projects-e2b392aa.vercel.app](synchro-hr-fwc.vercel.app)
 
 
 **Steps:**
