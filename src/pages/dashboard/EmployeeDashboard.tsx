@@ -9,18 +9,72 @@ import { SalaryWidget } from '@/components/employee/SalaryWidget';
 import { PerformanceWidget } from '@/components/employee/PerformanceWidget';
 import { NotificationsWidget } from '@/components/employee/NotificationsWidget';
 import { FloatingChatbot } from '@/components/FloatingChatbot';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const EmployeeDashboard = () => {
   const { user, signOut } = useAuth();
-  
-  // Dummy employee data for display
-  const employee = {
-    id: 'dummy-emp-1',
-    full_name: user?.email?.split('@')[0] || 'Employee',
-    position: 'Software Engineer',
-    department: 'Engineering',
-    email: user?.email || 'employee@company.com'
-  };
+  const [employee, setEmployee] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      if (!user?.id) return;
+      
+      const { data, error } = await supabase
+        .from('employees')
+        .select('id, full_name, position, department_id, email, departments(name)')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching employee:', error);
+      } else if (data) {
+        setEmployee({
+          id: data.id,
+          full_name: data.full_name,
+          position: data.position,
+          department: data.departments?.name || 'Engineering',
+          email: data.email
+        });
+      }
+      setLoading(false);
+    };
+
+    fetchEmployee();
+  }, [user?.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5">
+        <div className="container mx-auto px-4 py-4 md:py-8">
+          <Skeleton className="h-20 w-full mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="lg:col-span-2 space-y-4">
+              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!employee) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Employee Profile Not Found</h2>
+          <p className="text-muted-foreground mb-6">Please contact HR to set up your employee profile.</p>
+          <Button onClick={signOut} variant="outline">Sign Out</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5">
