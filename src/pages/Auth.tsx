@@ -47,10 +47,19 @@ const Auth = () => {
       setSelectedRole(role);
     }
 
-    // Redirect logged-in users to their dashboard
+    // Handle existing session
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
+      
+      // If on signup mode and user is already logged in, sign them out once
+      if (mode === 'signup' && session?.user) {
+        console.log('Signup mode with existing session detected - signing out...');
+        await supabase.auth.signOut();
+        return;
+      }
+      
+      // If logged in and on login mode, redirect to dashboard
+      if (session?.user && mode !== 'signup') {
         const { data: roleData } = await supabase
           .from('user_roles')
           .select('role')
@@ -130,14 +139,6 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('=== SIGNUP STARTED ===', { email, selectedRole, isLogin });
-    
-    // If already signed in and trying to sign up, sign out first
-    if (!isLogin && user) {
-      console.log('User already signed in, signing out first...');
-      await supabase.auth.signOut();
-      // Wait a moment for signout to complete
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
     
     setLoading(true);
     setEmailError('');
