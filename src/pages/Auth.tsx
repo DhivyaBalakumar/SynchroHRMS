@@ -205,23 +205,20 @@ const Auth = () => {
         }
 
         if (data.user) {
-          // Insert role with upsert to handle duplicates
-          const { error: roleError } = await supabase
-            .from('user_roles')
-            .upsert({
-              user_id: data.user.id,
-              role: selectedRole as any,
-            }, {
-              onConflict: 'user_id',
-              ignoreDuplicates: false
+          // Use the secure database function to insert role
+          try {
+            const { error: roleError } = await supabase.rpc('insert_user_role', {
+              _user_id: data.user.id,
+              _role: selectedRole as 'admin' | 'employee' | 'hr' | 'intern' | 'manager' | 'senior_manager'
             });
 
-          if (roleError) {
-            console.error('Role insertion error:', roleError);
-            // Don't throw error if it's just a duplicate key error
-            if (!roleError.message?.includes('duplicate') && !roleError.code?.includes('23505')) {
-              throw new Error(`Failed to assign ${selectedRole} role. Please contact support.`);
+            if (roleError) {
+              console.error('Role insertion error:', roleError);
+              throw new Error(`Failed to assign ${selectedRole} role. Please try again or contact support.`);
             }
+          } catch (roleErr: any) {
+            console.error('RPC call error:', roleErr);
+            throw new Error(`Failed to assign ${selectedRole} role. Please try again or contact support.`);
           }
 
           // Send verification email (optional with auto-confirm enabled)
