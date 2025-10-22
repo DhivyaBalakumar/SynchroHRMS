@@ -29,17 +29,25 @@ export const CandidateLogin = () => {
     setValidating(true);
     try {
       const { data, error } = await supabase.rpc('validate_interview_token', {
-        input_token: token,
+        _token: token,
       });
 
       if (error) throw error;
 
-      if (data && data.length > 0 && data[0].is_valid) {
+      if (data && Array.isArray(data) && data.length > 0 && data[0].is_valid) {
+        const validationData = data[0];
+        // Fetch resume details to get candidate info
+        const { data: resumeData } = await supabase
+          .from('resumes')
+          .select('candidate_name, position_applied')
+          .eq('id', validationData.resume_id)
+          .single();
+        
         // Store token in session storage for interview portal
         sessionStorage.setItem('interview_token', token);
-        sessionStorage.setItem('resume_id', data[0].resume_id);
-        sessionStorage.setItem('candidate_name', data[0].candidate_name);
-        sessionStorage.setItem('job_title', data[0].job_title);
+        sessionStorage.setItem('resume_id', validationData.resume_id);
+        sessionStorage.setItem('candidate_name', resumeData?.candidate_name || 'Candidate');
+        sessionStorage.setItem('job_title', resumeData?.position_applied || 'Position');
         
         navigate('/interview/portal');
       } else {
