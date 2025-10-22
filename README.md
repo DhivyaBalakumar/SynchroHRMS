@@ -6,34 +6,115 @@ SynchroHR is an **AI‑powered Human Resource Management System** designed for m
 
 ## 🚀 Features
 
-### Recruitment & Screening
-- **Bulk Resume Screening** – Upload and parse multiple resumes at once with AI‑powered skill extraction and ranking.
-- **AI Resume Parsing** – Evaluate candidates on skills, experience, and cultural fit.
-- **Job Matching Algorithm** – AI‑based ranking using skill weighting.
+🔐 Authentication & Access Control
+Secure multi-role login (Management Admin, HR, Manager, Employee, Intern, Senior Manager)
 
-### AI Interview System
-- One‑click **video interviews** with real‑time emotion and facial expression analysis.
-- **Natural‑language question generation** for customized interview experience.
-- **Interview Summary Reports** – Emotion analysis and candidate evaluation.
+Email/password with RBAC
 
-### Onboarding & Employee Management
-- Streamlined candidate-to-employee onboarding workflows.
-- Automated document collection and compliance verification.
-- Employee profiles, attendance, and role management.
+Fine-grained Row Level Security via Supabase
 
-### Data Analysis & Dashboards
-- Real-time **HR analytics** on hiring, retention, performance, and diversity.
-- Predictive modeling for attrition and employee growth.
-- Customizable dashboards with role‑based insights.
+Protected client-side & server routes per role
 
-### Multi-User Login & Role Management
-- Secure authentication and authorization using Supabase Auth.
-- Role‑based access control for HR, managers, employees, interns, and admins.
-- Activity logs and audit trails.
+👥 User Roles & Dashboards
+Six core roles, each with tailored dashboards, navigation, and permissions
 
-### Email & Notification System
-- Automated emails for application updates, interview scheduling, onboarding, and feedback.
-- Integration with Resend API using your verified sender address.
+Management/Admin: full control, analytics, user provisioning
+
+HR Recruiter: candidate tracking, compliance, interview management
+
+Manager/Senior Manager: team analytics, goal setting, reviews
+
+Employee: self-service workspace, leave, performance, growth
+
+Intern: onboarding, learning modules, progress tracking
+
+🤖 AI Automation
+AI Resume Screening: Bulk CV parsing, ATS scoring with customizable criteria
+
+AI Voice Interviews: Automated question/answer rounds using real-time AI, with sentiment/emotion analysis
+
+AI Interview Analysis: Multimodal assessment (audio, video, text), auto-generated interview reports
+
+AI Career Coach: Personalized learning, growth, and upskilling guidance using Lovable AI
+
+Predictive Analytics: Attrition prediction, team performance insights, and auto-generated recommendations
+
+📊 Recruitment & Hiring
+Job boards, applications portal, resume parsing
+
+Candidate pipeline visualization: track every stage
+
+Interview scheduling, token generation, bulk upload
+
+Automated email invitations, selection/rejection notifications
+
+👔 Employee Management
+Employee profile system with skills, history, department data
+
+Admin, HR, and Manager UI for role/department management
+
+Skill tracking, search, and organization-wide filtering
+
+🎯 Onboarding Automation
+Workflow generator for new hires
+
+Task assignment modules for HR, managers, employees
+
+Equipment/training/document setup tracking
+
+Dedicated dashboard interfaces for onboarding
+
+📈 Performance Management
+Review system: periodic and on-demand feedback
+
+Performance wall for ranking and recognition
+
+Goal setting, pulse surveys, badge/award modules
+
+⏰ Attendance & Time
+Real-time attendance, leave request workflows
+
+Approval/rejection tracking, leave analytics
+
+Team-wise time logging integration
+
+💰 Payroll & Compensation
+Salary data access per role, payslip download
+
+Manager dashboard for salary insights and budgeting
+
+📧 Email Automation
+Email queue integration for event-triggered mail
+
+Automated delivery for interview, onboarding, selection/rejection, password reset, and verification workflows
+
+📊 Advanced Analytics & Reporting
+Real-time dashboards for team performance, recruitment, department health
+
+Predictive analytics (attrition, growth)
+
+KPI builder and automated report generator
+
+🎓 Learning & Development
+Employee upskilling learning paths
+
+Mentorship assignments and tracking
+
+Career growth roadmap and training modules
+
+🔧 System Features
+Demo mode toggle with simulated data
+
+Error boundary logging, real-time update notifications
+
+Mobile-first, responsive design with dark/light modes
+
+Floating AI chatbot
+
+📁 Data Management
+Bulk data upload, seed data generator for testing/demo
+
+Export and analytics filtering (demo vs. real data)
 
 ---
 
@@ -50,6 +131,75 @@ SynchroHR is an **AI‑powered Human Resource Management System** designed for m
 | Hosting     | Vercel                                          |
 
 ---
+
+Frontend
+React 18.3 + TypeScript – Robust, scalable UI
+
+Vite – Fast build tool & dev server
+
+Tailwind CSS – Utility-first styling framework
+
+Shadcn UI – Accessible UI component library
+
+Framer Motion – Advanced animations
+
+React Router DOM – SPA/MPA routing
+
+TanStack React Query – Smart, cached data fetching & sync
+
+Lucide React – Icon system
+
+Recharts – Powerful data visualizations
+
+React Hook Form + Zod – Flexible, type-safe form validation
+
+Backend & Infrastructure
+Supabase (via Lovable Cloud)
+
+PostgreSQL Database (scalable relational DB)
+
+Supabase Auth (login, RBAC, tokens)
+
+Row Level Security (fine-grained access)
+
+Edge Functions (Deno runtime, custom logic)
+
+Storage buckets for files & resumes
+
+Real-time data subscriptions
+
+APIs & Integrations
+Lovable AI API – AI interviews, career coaching, analytics
+
+Resend API – Automated email delivery (invitations, notifications, etc.)
+
+OpenAI API (optional) – Extended AI capabilities for resume parsing & interview analysis
+
+Hosting & Automation
+Vercel – Serverless hosting, CI/CD, instant preview deployments
+
+Service              |  Why & How Used                                    
+---------------------+----------------------------------------------------
+Supabase Database    |  All core data, RLS, edge functions, auth          
+Supabase Storage     |  Secure file storage for resumes, docs             
+Supabase Edge Funcs  |  Custom backend logic, event hooks                 
+Resend API           |  Automated mail for recruitment & onboarding       
+Lovable AI Gateway   |  All AI-driven features, analytics, recommendations
+
+
+🗄️ Database Schema
+Table Name                              |  Purpose                                        
+----------------------------------------+-------------------------------------------------
+profiles, user_roles                    |  Users, authentication, access control          
+employees, departments                  |  Employee records, department structure         
+jobs, job_applications                  |  Recruitment process, candidate tracking        
+resumes, interview_tokens               |  Document uploads, interview security/tokens    
+interviews, interview_reports           |  All stages and outcomes of AI-driven interviews
+performance_reviews, pulse_surveys      |  Feedback, recognition, analytics               
+onboarding_workflows, onboarding_tasks  |  HR onboarding automation modules               
+career_goals, mentorship                |  Guided employee growth and learning modules    
+email_queue, error_logs                 |  System automation, notification, monitoring    
+
 
 ## ⚙️ Environment Variables
 
@@ -103,6 +253,16 @@ Steps:
 **Core Differentiator:** AI interviewing combined with seamless recruitment-to-onboarding automation.
 
 ---
+
+🛡️ Security & Scalability
+All features built for production with enterprise-grade security (Supabase RLS, RBAC, encrypted storage, secure email, audited edge logic) and horizontal scalability for organizations of any size.
+
+---
+
+📚 Documentation
+For API usage and advanced configurations, see /docs directory in the repo.
+
+
 
 ## 🏆 Author
 
