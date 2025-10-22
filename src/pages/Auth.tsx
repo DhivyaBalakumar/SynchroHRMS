@@ -205,20 +205,17 @@ const Auth = () => {
         }
 
         if (data.user) {
-          // Use the secure database function to insert role
-          try {
-            const { error: roleError } = await supabase.rpc('insert_user_role', {
-              _user_id: data.user.id,
-              _role: selectedRole as 'admin' | 'employee' | 'hr' | 'intern' | 'manager' | 'senior_manager'
+          // Insert role directly (RLS is disabled on user_roles for system operations)
+          const { error: roleError } = await supabase
+            .from('user_roles')
+            .insert({
+              user_id: data.user.id,
+              role: selectedRole as 'admin' | 'employee' | 'hr' | 'intern' | 'manager' | 'senior_manager',
             });
 
-            if (roleError) {
-              console.error('Role insertion error:', roleError);
-              throw new Error(`Failed to assign ${selectedRole} role. Please try again or contact support.`);
-            }
-          } catch (roleErr: any) {
-            console.error('RPC call error:', roleErr);
-            throw new Error(`Failed to assign ${selectedRole} role. Please try again or contact support.`);
+          if (roleError) {
+            console.error('Role insertion error:', roleError);
+            throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
           }
 
           // Send verification email (optional with auto-confirm enabled)
