@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/select';
 
 export const ResumeScreening = () => {
+  const navigate = useNavigate();
   const [resumes, setResumes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
@@ -393,7 +395,7 @@ export const ResumeScreening = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.location.href = '/recruitment/interviews'}
+                        onClick={() => navigate('/recruitment/interviews')}
                       >
                         <Video className="h-4 w-4 mr-2" />
                         View Interview

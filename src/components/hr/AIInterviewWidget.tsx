@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +16,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 export const AIInterviewWidget = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [interviews, setInterviews] = useState<any[]>([]);
   const [stats, setStats] = useState({
@@ -99,7 +101,7 @@ export const AIInterviewWidget = () => {
         </div>
         <Button 
           variant="outline"
-          onClick={() => window.location.href = '/recruitment/interviews'}
+          onClick={() => navigate('/recruitment/interviews')}
         >
           View All
         </Button>
@@ -175,13 +177,13 @@ export const AIInterviewWidget = () => {
                 )}
               </div>
               {interview.status === 'completed' && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => window.location.href = `/recruitment/interviews`}
-                >
-                  <PlayCircle className="h-4 w-4" />
-                </Button>
+                  <Button 
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => navigate(`/recruitment/interviews`)}
+                  >
+                    <PlayCircle className="h-4 w-4" />
+                  </Button>
               )}
             </div>
           ))

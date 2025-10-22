@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
@@ -31,6 +32,7 @@ import { InterviewReportsSection } from '@/components/hr/InterviewReportsSection
 
 const HRDashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { applyFilter } = useDemoModeFilter();
   const [stats, setStats] = useState({
     totalEmployees: 0,
@@ -221,7 +223,7 @@ const HRDashboard = () => {
             <Card className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Active Job Roles</h2>
-                <Button onClick={() => window.location.href = '/recruitment/seed'}>
+                <Button onClick={() => navigate('/recruitment/seed')}>
                   <Database className="h-4 w-4 mr-2" />
                   Generate Test Data
                 </Button>
@@ -256,7 +258,7 @@ const HRDashboard = () => {
                       </div>
                       <Button
                         size="sm"
-                        onClick={() => window.location.href = `/recruitment/screening?role=${role.id}`}
+                        onClick={() => navigate(`/recruitment/screening?role=${role.id}`)}
                       >
                         View Applicants
                       </Button>
@@ -269,7 +271,7 @@ const HRDashboard = () => {
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => window.location.href = '/recruitment/upload'}>
+                onClick={() => navigate('/recruitment/upload')}>
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-blue-500/10">
                     <FileText className="h-8 w-8 text-blue-500" />
@@ -282,7 +284,7 @@ const HRDashboard = () => {
               </Card>
 
               <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => window.location.href = '/recruitment/screening'}>
+                onClick={() => navigate('/recruitment/screening')}>
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-purple-500/10">
                     <CheckCircle2 className="h-8 w-8 text-purple-500" />
@@ -295,7 +297,7 @@ const HRDashboard = () => {
               </Card>
 
               <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => window.location.href = '/jobs'}>
+                onClick={() => navigate('/jobs')}>
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-green-500/10">
                     <Calendar className="h-8 w-8 text-green-500" />
@@ -324,7 +326,7 @@ const HRDashboard = () => {
                   className="w-full justify-start" 
                   variant="outline" 
                   size="lg"
-                  onClick={() => window.location.href = '/recruitment/interviews'}
+                  onClick={() => navigate('/recruitment/interviews')}
                 >
                   <Video className="h-5 w-5 mr-3" />
                   View All Interviews ({stats.completedInterviews} completed)
@@ -333,7 +335,7 @@ const HRDashboard = () => {
                   className="w-full justify-start" 
                   variant="outline" 
                   size="lg"
-                  onClick={() => window.location.href = '/recruitment/screening'}
+                  onClick={() => navigate('/recruitment/screening')}
                 >
                   <Calendar className="h-5 w-5 mr-3" />
                   Pending Invitations ({stats.pendingInvitations})
@@ -363,7 +365,7 @@ const HRDashboard = () => {
                 <Button 
                   className="w-full" 
                   size="lg"
-                  onClick={() => window.location.href = '/recruitment/pipeline'}
+                  onClick={() => navigate('/recruitment/pipeline')}
                 >
                   View Full Pipeline
                 </Button>
@@ -379,7 +381,7 @@ const HRDashboard = () => {
                   className="w-full justify-start" 
                   variant="outline" 
                   size="lg"
-                  onClick={() => window.location.href = '/employees'}
+                  onClick={() => navigate('/employees')}
                 >
                   <Users className="h-5 w-5 mr-3" />
                   View All Employees
@@ -388,7 +390,7 @@ const HRDashboard = () => {
                   className="w-full justify-start" 
                   variant="outline" 
                   size="lg"
-                  onClick={() => window.location.href = '/employees/add'}
+                  onClick={() => navigate('/employees/add')}
                 >
                   <UserPlus className="h-5 w-5 mr-3" />
                   Add New Employee
@@ -397,7 +399,7 @@ const HRDashboard = () => {
                   className="w-full justify-start" 
                   variant="outline" 
                   size="lg"
-                  onClick={() => window.location.href = '/departments'}
+                  onClick={() => navigate('/departments')}
                 >
                   <FileText className="h-5 w-5 mr-3" />
                   Manage Departments
@@ -442,7 +444,7 @@ const HRDashboard = () => {
             <Card className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">System Analytics</h2>
-                <Button onClick={() => window.location.href = '/analytics/advanced'}>
+                <Button onClick={() => navigate('/analytics/advanced')}>
                   View Advanced Analytics
                 </Button>
               </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { useDemoMode } from '@/contexts/DemoModeContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export const SeedData = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [count, setCount] = useState(50000);
@@ -128,7 +130,7 @@ export const SeedData = () => {
                 </p>
               </div>
               <Button
-                onClick={() => window.location.href = '/recruitment/screening'}
+                onClick={() => navigate('/recruitment/screening')}
                 size="lg"
                 className="w-full"
               >
