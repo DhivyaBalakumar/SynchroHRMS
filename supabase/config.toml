@@ -3,6 +3,12 @@ project_id = "bvrvhmurbsyafdwwmmry"
 [functions.ai-resume-screening]
 verify_jwt = false
 
+[functions.analyze-interview]
+verify_jwt = false
+
+[functions.multimodal-analysis]
+verify_jwt = false
+
 [functions.chat-ai]
 verify_jwt = false
 

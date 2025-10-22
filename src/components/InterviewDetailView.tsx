@@ -12,7 +12,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Video, FileText, Brain, Save, Download } from 'lucide-react';
+import { Video, FileText, Brain, Save, Download, BarChart3, Loader2 } from 'lucide-react';
+import { MultimodalReportView } from './MultimodalReportView';
 
 interface InterviewDetailViewProps {
   interview: any;
@@ -23,6 +24,8 @@ interface InterviewDetailViewProps {
 export const InterviewDetailView = ({ interview, onClose, onUpdate }: InterviewDetailViewProps) => {
   const [hrNotes, setHrNotes] = useState(interview.feedback || '');
   const [saving, setSaving] = useState(false);
+  const [loadingReport, setLoadingReport] = useState(false);
+  const [multimodalAnalysis, setMultimodalAnalysis] = useState<any>(null);
   const { toast } = useToast();
 
   const saveNotes = async () => {
@@ -58,6 +61,34 @@ export const InterviewDetailView = ({ interview, onClose, onUpdate }: InterviewD
     a.click();
   };
 
+  const generateMultimodalReport = async () => {
+    setLoadingReport(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('multimodal-analysis', {
+        body: { interviewId: interview.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.analysis) {
+        setMultimodalAnalysis(data.analysis);
+        toast({
+          title: 'Success',
+          description: 'Multimodal analysis completed',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error generating report:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to generate multimodal report',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingReport(false);
+    }
+  };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -84,7 +115,7 @@ export const InterviewDetailView = ({ interview, onClose, onUpdate }: InterviewD
           </div>
 
           <Tabs defaultValue="video" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="video">
                 <Video className="h-4 w-4 mr-2" />
                 Video
@@ -96,6 +127,10 @@ export const InterviewDetailView = ({ interview, onClose, onUpdate }: InterviewD
               <TabsTrigger value="ai-summary">
                 <Brain className="h-4 w-4 mr-2" />
                 AI Summary
+              </TabsTrigger>
+              <TabsTrigger value="reports">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Reports
               </TabsTrigger>
               <TabsTrigger value="notes">
                 <FileText className="h-4 w-4 mr-2" />
@@ -178,6 +213,38 @@ export const InterviewDetailView = ({ interview, onClose, onUpdate }: InterviewD
                 <div className="bg-secondary/20 p-8 rounded-lg text-center">
                   <p className="text-muted-foreground">No AI summary available</p>
                 </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="reports" className="space-y-4">
+              {!multimodalAnalysis ? (
+                <div className="bg-secondary/20 p-8 rounded-lg text-center space-y-4">
+                  <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground" />
+                  <div>
+                    <h4 className="font-semibold mb-2">Generate Comprehensive Report</h4>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Generate detailed sentiment and emotion analysis for both video and audio components
+                    </p>
+                    <Button onClick={generateMultimodalReport} disabled={loadingReport}>
+                      {loadingReport ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <BarChart3 className="h-4 w-4 mr-2" />
+                          Generate Report
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <MultimodalReportView 
+                  audioAnalysis={multimodalAnalysis.audio}
+                  videoAnalysis={multimodalAnalysis.video}
+                />
               )}
             </TabsContent>
 
