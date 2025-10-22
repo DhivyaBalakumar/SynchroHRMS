@@ -204,71 +204,35 @@ const Auth = () => {
           throw error;
         }
 
-        if (data.user) {
-          // Insert role directly (RLS is disabled on user_roles for system operations)
-          const { error: roleError } = await supabase
-            .from('user_roles')
-            .upsert({
-              user_id: data.user.id,
-              role: selectedRole as 'admin' | 'employee' | 'hr' | 'intern' | 'manager' | 'senior_manager',
-            }, {
-              onConflict: 'user_id'
-            });
-
-          if (roleError) {
-            console.error('Role insertion error:', roleError);
-            setLoading(false);
-            throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
-          }
-
-          // Send verification email (optional with auto-confirm enabled)
-          try {
-            await supabase.functions.invoke('send-verification-email', {
-              body: {
-                email,
-                verificationLink: `${window.location.origin}/dashboard/${selectedRole}`,
-                userName: fullName,
-              },
-            });
-          } catch (emailError) {
-            console.error('Error sending verification email:', emailError);
-          }
-
-          // Sign in the user immediately after signup (with auto-confirm enabled)
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (signInError) {
-            console.error('Auto sign-in error:', signInError);
-            setLoading(false);
-            // If auto sign-in fails, show success but ask them to log in
-            toast({
-              title: 'Account created!',
-              description: 'Please sign in with your credentials.',
-            });
-            setIsLogin(true);
-            return;
-          }
-
-          toast({
-            title: 'Account created successfully!',
-            description: `Welcome to SynchroHR!`,
-          });
-
-          // Small delay to ensure auth state propagates
-          await new Promise(resolve => setTimeout(resolve, 800));
-          
-          // Explicitly set loading false before navigation
-          setLoading(false);
-          
-          // Navigate using react-router
-          navigate(`/dashboard/${selectedRole}`, { replace: true });
+        if (!data.user) {
+          throw new Error('Failed to create account. Please try again.');
         }
+
+        // Insert role directly (RLS is disabled on user_roles for system operations)
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .upsert({
+            user_id: data.user.id,
+            role: selectedRole as 'admin' | 'employee' | 'hr' | 'intern' | 'manager' | 'senior_manager',
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (roleError) {
+          console.error('Role insertion error:', roleError);
+          throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
+        }
+
+        toast({
+          title: 'Success!',
+          description: 'Account created. Redirecting...',
+        });
+
+        // Navigate directly - auth state will be handled by AuthContext
+        navigate(`/dashboard/${selectedRole}`, { replace: true });
       }
     } catch (error: any) {
-      console.error('Signup/Login error:', error);
+      console.error('Auth error:', error);
       if (error.message?.includes('already registered as')) {
         toast({
           title: 'Account Already Exists',
