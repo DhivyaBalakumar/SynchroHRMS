@@ -88,6 +88,44 @@ export type Database = {
         }
         Relationships: []
       }
+      candidates: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          resume_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          resume_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          resume_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           created_at: string
@@ -117,42 +155,50 @@ export type Database = {
       }
       email_queue: {
         Row: {
-          body: string
           created_at: string
+          email_data: Json | null
+          email_type: string | null
           error_message: string | null
           id: string
-          recipient_email: string
+          resume_id: string | null
           retry_count: number
+          scheduled_for: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["email_status"]
-          subject: string
-          template_type: string | null
         }
         Insert: {
-          body: string
           created_at?: string
+          email_data?: Json | null
+          email_type?: string | null
           error_message?: string | null
           id?: string
-          recipient_email: string
+          resume_id?: string | null
           retry_count?: number
+          scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_status"]
-          subject: string
-          template_type?: string | null
         }
         Update: {
-          body?: string
           created_at?: string
+          email_data?: Json | null
+          email_type?: string | null
           error_message?: string | null
           id?: string
-          recipient_email?: string
+          resume_id?: string | null
           retry_count?: number
+          scheduled_for?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["email_status"]
-          subject?: string
-          template_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "email_queue_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       employee_skills: {
         Row: {
@@ -324,14 +370,54 @@ export type Database = {
           },
         ]
       }
+      interview_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          interview_completed: boolean | null
+          resume_id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          interview_completed?: boolean | null
+          resume_id: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          interview_completed?: boolean | null
+          resume_id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_tokens_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interviews: {
         Row: {
           ai_evaluation: Json | null
           candidate_email: string
           candidate_name: string
+          completed_at: string | null
           created_at: string
           feedback: Json | null
           id: string
+          interview_link: string | null
           interview_type: string | null
           meeting_link: string | null
           overall_score: number | null
@@ -339,6 +425,7 @@ export type Database = {
           recording_url: string | null
           resume_id: string | null
           scheduled_at: string | null
+          scheduled_for: string | null
           status: Database["public"]["Enums"]["interview_status"]
           transcript: string | null
           updated_at: string
@@ -347,9 +434,11 @@ export type Database = {
           ai_evaluation?: Json | null
           candidate_email: string
           candidate_name: string
+          completed_at?: string | null
           created_at?: string
           feedback?: Json | null
           id?: string
+          interview_link?: string | null
           interview_type?: string | null
           meeting_link?: string | null
           overall_score?: number | null
@@ -357,6 +446,7 @@ export type Database = {
           recording_url?: string | null
           resume_id?: string | null
           scheduled_at?: string | null
+          scheduled_for?: string | null
           status?: Database["public"]["Enums"]["interview_status"]
           transcript?: string | null
           updated_at?: string
@@ -365,9 +455,11 @@ export type Database = {
           ai_evaluation?: Json | null
           candidate_email?: string
           candidate_name?: string
+          completed_at?: string | null
           created_at?: string
           feedback?: Json | null
           id?: string
+          interview_link?: string | null
           interview_type?: string | null
           meeting_link?: string | null
           overall_score?: number | null
@@ -375,6 +467,7 @@ export type Database = {
           recording_url?: string | null
           resume_id?: string | null
           scheduled_at?: string | null
+          scheduled_for?: string | null
           status?: Database["public"]["Enums"]["interview_status"]
           transcript?: string | null
           updated_at?: string
@@ -733,11 +826,16 @@ export type Database = {
           email: string
           file_url: string | null
           id: string
+          interview_completed_email_sent: boolean | null
+          interview_scheduled_at: string | null
+          interview_scheduled_email_sent: boolean | null
           job_role_id: string | null
           parsed_data: Json | null
           phone: string | null
+          pipeline_stage: string | null
           position_applied: string
           screening_status: Database["public"]["Enums"]["screening_status"]
+          selection_email_sent: boolean | null
           source: string
           updated_at: string
         }
@@ -749,11 +847,16 @@ export type Database = {
           email: string
           file_url?: string | null
           id?: string
+          interview_completed_email_sent?: boolean | null
+          interview_scheduled_at?: string | null
+          interview_scheduled_email_sent?: boolean | null
           job_role_id?: string | null
           parsed_data?: Json | null
           phone?: string | null
+          pipeline_stage?: string | null
           position_applied: string
           screening_status?: Database["public"]["Enums"]["screening_status"]
+          selection_email_sent?: boolean | null
           source?: string
           updated_at?: string
         }
@@ -765,11 +868,16 @@ export type Database = {
           email?: string
           file_url?: string | null
           id?: string
+          interview_completed_email_sent?: boolean | null
+          interview_scheduled_at?: string | null
+          interview_scheduled_email_sent?: boolean | null
           job_role_id?: string | null
           parsed_data?: Json | null
           phone?: string | null
+          pipeline_stage?: string | null
           position_applied?: string
           screening_status?: Database["public"]["Enums"]["screening_status"]
+          selection_email_sent?: boolean | null
           source?: string
           updated_at?: string
         }
@@ -919,6 +1027,13 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      validate_interview_token: {
+        Args: { _token: string }
+        Returns: {
+          is_valid: boolean
+          resume_id: string
+        }[]
       }
     }
     Enums: {
