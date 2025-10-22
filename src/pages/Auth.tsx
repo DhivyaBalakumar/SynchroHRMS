@@ -207,7 +207,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/dashboard/${selectedRole}`,
             data: {
               full_name: fullName,
             },
@@ -239,15 +239,30 @@ const Auth = () => {
             console.error('Error sending verification email:', emailError);
           }
 
-          toast({
-            title: 'Account created successfully!',
-            description: `Welcome to SynchroHR! Redirecting to your ${selectedRole} dashboard...`,
+          // Sign in the user immediately after signup (with auto-confirm enabled)
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
           });
 
-          // Wait for auth state to fully update before navigation
-          setTimeout(() => {
-            navigate(`/dashboard/${selectedRole}`, { replace: true });
-          }, 500);
+          if (signInError) {
+            console.error('Auto sign-in error:', signInError);
+            // If auto sign-in fails, show success but ask them to log in
+            toast({
+              title: 'Account created!',
+              description: 'Please sign in with your credentials.',
+            });
+            setIsLogin(true);
+            return;
+          }
+
+          toast({
+            title: 'Account created successfully!',
+            description: `Welcome to SynchroHR! Opening your ${selectedRole} dashboard...`,
+          });
+
+          // Navigate immediately since user is now signed in
+          navigate(`/dashboard/${selectedRole}`, { replace: true });
         }
       }
     } catch (error: any) {
