@@ -41,29 +41,16 @@ const Index = () => {
 
   const roles = [
     {
-      id: "employee",
-      title: "Employee",
-      description: "Access your personal workspace, view payslips, manage attendance, and track your career growth.",
-      Icon: Users,
-      image: employeeImage,
+      id: "admin",
+      title: "Management Admin",
+      description: "Complete system control with full access to all features, user management, and platform configuration.",
+      Icon: Building2,
+      image: hrImage,
       features: [
-        "Personal dashboard and analytics",
-        "Leave requests and attendance tracking",
-        "Payslip and benefits access",
-        "Career development tools"
-      ],
-    },
-    {
-      id: "manager",
-      title: "Manager",
-      description: "Lead your team with powerful analytics, approval workflows, and performance management tools.",
-      Icon: UserCog,
-      image: managerImage,
-      features: [
-        "Team analytics and insights",
-        "Approval workflows and requests",
-        "Performance wall and rankings",
-        "Pulse surveys and feedback"
+        "Full system access and control",
+        "User and role management",
+        "Platform configuration settings",
+        "System-wide analytics and monitoring"
       ],
     },
     {
@@ -80,6 +67,45 @@ const Index = () => {
       ],
     },
     {
+      id: "manager",
+      title: "Manager",
+      description: "Lead your team with powerful analytics, approval workflows, and performance management tools.",
+      Icon: UserCog,
+      image: managerImage,
+      features: [
+        "Team analytics and insights",
+        "Approval workflows and requests",
+        "Performance wall and rankings",
+        "Pulse surveys and feedback"
+      ],
+    },
+    {
+      id: "senior_manager",
+      title: "Senior Manager",
+      description: "Strategic leadership with cross-department insights, advanced analytics, and executive decision-making tools.",
+      Icon: TrendingUp,
+      image: managerImage,
+      features: [
+        "Multi-department oversight and analytics",
+        "Strategic planning and forecasting",
+        "Executive reports and KPIs",
+        "Budget and resource allocation"
+      ],
+    },
+    {
+      id: "employee",
+      title: "Employee",
+      description: "Access your personal workspace, view payslips, manage attendance, and track your career growth.",
+      Icon: Users,
+      image: employeeImage,
+      features: [
+        "Personal dashboard and analytics",
+        "Leave requests and attendance tracking",
+        "Payslip and benefits access",
+        "Career development tools"
+      ],
+    },
+    {
       id: "intern",
       title: "Intern",
       description: "Unique onboarding experience with mentorship, goal tracking, and career development resources.",
@@ -90,32 +116,6 @@ const Index = () => {
         "Mentor connection and guidance",
         "Learning path and skill tracking",
         "Feedback and growth badges"
-      ],
-    },
-    {
-      id: "senior_manager",
-      title: "Senior Manager",
-      description: "Strategic leadership with cross-department insights, advanced analytics, and executive decision-making tools.",
-      Icon: Crown,
-      image: managerImage,
-      features: [
-        "Multi-department oversight and analytics",
-        "Strategic planning and forecasting",
-        "Executive reports and KPIs",
-        "Budget and resource allocation"
-      ],
-    },
-    {
-      id: "admin",
-      title: "Management Admin",
-      description: "Complete system control with full access to all features, user management, and platform configuration.",
-      Icon: Building2,
-      image: hrImage,
-      features: [
-        "Full system access and control",
-        "User and role management",
-        "Platform configuration settings",
-        "System-wide analytics and monitoring"
       ],
     },
   ];
