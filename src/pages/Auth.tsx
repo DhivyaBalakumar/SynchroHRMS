@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { validateEmail, validatePassword } from '@/lib/emailValidation';
 import { Users, UserCog, Shield, GraduationCap, Briefcase, Mail, Lock, User, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 
@@ -22,6 +23,9 @@ const roleOptions = [
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -32,8 +36,6 @@ const Auth = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     const mode = searchParams.get('mode');
@@ -128,6 +130,15 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('=== SIGNUP STARTED ===', { email, selectedRole, isLogin });
+    
+    // If already signed in and trying to sign up, sign out first
+    if (!isLogin && user) {
+      console.log('User already signed in, signing out first...');
+      await supabase.auth.signOut();
+      // Wait a moment for signout to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
     setLoading(true);
     setEmailError('');
     setPasswordError('');
