@@ -171,7 +171,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <ProjectTasksWidget managerId={displayManagerId} />
+              <ProjectTasksWidget teamId={displayManagerId} />
             </motion.div>
           </div>
 

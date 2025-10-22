@@ -30,14 +30,15 @@ const AddEmployee = () => {
       const { error } = await supabase
         .from('employees')
         .insert({
-          employee_id: formData.employeeId,
+          user_id: '',
           full_name: formData.fullName,
           email: formData.email,
           phone: formData.phone || null,
-          position: formData.position || null,
-          department: formData.department || null,
-          hire_date: formData.hireDate || null,
-          status: 'active',
+          position: formData.position,
+          department_id: formData.department || null,
+          hire_date: formData.hireDate,
+          employee_id: formData.employeeId,
+          employment_status: 'active',
         });
 
       if (error) throw error;

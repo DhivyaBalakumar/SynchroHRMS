@@ -24,7 +24,7 @@ export const ProjectTasksWidget = ({ teamId }: ProjectTasksWidgetProps) => {
     const { data: projectsData } = await supabase
       .from('projects')
       .select('*')
-      .eq('team_id', teamId)
+      .eq('manager_id', teamId)
       .order('created_at', { ascending: false });
 
     const filteredProjects = applyFilter(projectsData || []);
@@ -33,14 +33,11 @@ export const ProjectTasksWidget = ({ teamId }: ProjectTasksWidgetProps) => {
     if (filteredProjects && filteredProjects.length > 0) {
       const { data: tasksData } = await supabase
         .from('project_tasks')
-        .select('*, employees(*, source)')
+        .select('*, employees(*)')
         .in('project_id', filteredProjects.map(p => p.id))
         .order('due_date', { ascending: true });
 
-      const filteredTasks = applyFilter((tasksData || []).map(t => ({
-        ...t,
-        source: t.employees?.source
-      })));
+      const filteredTasks = applyFilter(tasksData || []);
       setTasks(filteredTasks);
     }
   };

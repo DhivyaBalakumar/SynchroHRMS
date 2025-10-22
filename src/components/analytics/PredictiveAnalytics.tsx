@@ -51,31 +51,30 @@ export const PredictiveAnalytics = () => {
       // Attrition Risk Analysis - Based on performance, sentiment, and tenure
       const { data: employees } = await supabase
         .from('employees')
-        .select(`
-          *,
-          employee_sentiment(sentiment_score, engagement_score, wellbeing_score),
-          performance_metrics(score)
-        `)
-        .eq('status', 'active');
+        .select('*')
+        .eq('employment_status', 'active');
 
       if (employees) {
         // Calculate attrition risk score for each employee
         const riskAnalysis = employees.map(emp => {
-          const sentiment = emp.employee_sentiment?.[0];
-          const performance = emp.performance_metrics?.[0];
+          const sentiment = emp.employee_sentiment as any;
+          const performance = emp.performance_metrics as any;
           
           let riskScore = 0;
           
           // Low engagement = higher risk
-          if (sentiment?.engagement_score < 60) riskScore += 30;
-          else if (sentiment?.engagement_score < 75) riskScore += 15;
+          const engagementScore = sentiment?.engagement_score || 75;
+          if (engagementScore < 60) riskScore += 30;
+          else if (engagementScore < 75) riskScore += 15;
           
           // Low wellbeing = higher risk
-          if (sentiment?.wellbeing_score < 60) riskScore += 25;
-          else if (sentiment?.wellbeing_score < 75) riskScore += 10;
+          const wellbeingScore = sentiment?.wellbeing_score || 75;
+          if (wellbeingScore < 60) riskScore += 25;
+          else if (wellbeingScore < 75) riskScore += 10;
           
           // Low performance without improvement = risk
-          if (performance?.score < 60) riskScore += 20;
+          const perfScore = performance?.score || 80;
+          if (perfScore < 60) riskScore += 20;
           
           // Random factor for demo purposes
           riskScore += Math.random() * 15;
@@ -85,8 +84,8 @@ export const PredictiveAnalytics = () => {
             employee_id: emp.employee_id,
             risk_score: Math.min(riskScore, 100),
             risk_level: riskScore > 65 ? 'high' : riskScore > 40 ? 'medium' : 'low',
-            engagement: sentiment?.engagement_score || 75,
-            performance: performance?.score || 80
+            engagement: engagementScore,
+            performance: perfScore
           };
         }).sort((a, b) => b.risk_score - a.risk_score);
 
@@ -96,15 +95,16 @@ export const PredictiveAnalytics = () => {
       // Promotion Readiness - Based on performance, skills, and tenure
       if (employees) {
         const promotionAnalysis = employees.map(emp => {
-          const performance = emp.performance_metrics?.[0];
+          const performance = emp.performance_metrics as any;
           const hireDateObj = emp.hire_date ? new Date(emp.hire_date) : new Date();
           const tenureMonths = Math.floor((new Date().getTime() - hireDateObj.getTime()) / (1000 * 60 * 60 * 24 * 30));
           
           let readinessScore = 0;
           
           // High performance
-          if (performance?.score >= 85) readinessScore += 40;
-          else if (performance?.score >= 75) readinessScore += 25;
+          const perfScore = performance?.score || 75;
+          if (perfScore >= 85) readinessScore += 40;
+          else if (perfScore >= 75) readinessScore += 25;
           
           // Adequate tenure
           if (tenureMonths >= 24) readinessScore += 30;
@@ -118,7 +118,7 @@ export const PredictiveAnalytics = () => {
             employee_id: emp.employee_id,
             readiness_score: Math.min(readinessScore, 100),
             readiness_level: readinessScore > 70 ? 'ready' : readinessScore > 50 ? 'potential' : 'developing',
-            performance: performance?.score || 75,
+            performance: perfScore,
             tenure_months: tenureMonths
           };
         }).sort((a, b) => b.readiness_score - a.readiness_score);

@@ -22,9 +22,8 @@ export const SkillsManagementWidget = ({ teamId }: SkillsManagementWidgetProps) 
   const loadSkillsData = async () => {
     const { data: members } = await supabase
       .from('team_members')
-      .select('employee_id, employees(*)')
-      .eq('team_id', teamId)
-      .eq('is_active', true);
+      .select('employee_id, employees!team_members_employee_id_fkey(*)')
+      .eq('manager_id', teamId);
 
     const employeeIds = members?.map(m => m.employee_id) || [];
 

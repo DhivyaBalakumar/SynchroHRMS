@@ -47,12 +47,11 @@ const HRDashboard = () => {
   }, []);
 
   const loadDashboardData = async () => {
-    // Load employees with filter
+    // Load employees
     const { data: allEmployees } = await supabase
       .from('employees')
       .select('*');
-    const filteredEmployees = applyFilter(allEmployees || []);
-    const employeeCount = filteredEmployees.length;
+    const employeeCount = allEmployees?.length || 0;
 
     // Load job roles
     const { data: rolesData } = await supabase

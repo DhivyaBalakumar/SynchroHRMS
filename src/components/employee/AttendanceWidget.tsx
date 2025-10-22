@@ -38,6 +38,7 @@ export const AttendanceWidget = ({ employeeId }: AttendanceWidgetProps) => {
     setLoading(true);
     const { error } = await supabase.from('attendance').insert({
       employee_id: employeeId,
+      date: new Date().toISOString().split('T')[0],
       sign_in_time: new Date().toISOString(),
       status: 'present'
     });

@@ -183,20 +183,20 @@ const Auth = () => {
 
         navigate(`/dashboard/${userRole}`);
       } else {
-        // Check if user already exists with a role
-        const { data: existingUsers } = await supabase
-          .from('profiles')
-          .select('id, email')
+        // Check if user already exists with a role by checking employees table
+        const { data: existingEmployee } = await supabase
+          .from('employees')
+          .select('id, user_id, email')
           .eq('email', email)
-          .single();
+          .maybeSingle();
 
-        if (existingUsers) {
+        if (existingEmployee) {
           // Check if they have a role assigned
           const { data: existingRole } = await supabase
             .from('user_roles')
             .select('role')
-            .eq('user_id', existingUsers.id)
-            .single();
+            .eq('user_id', existingEmployee.user_id)
+            .maybeSingle();
 
           if (existingRole) {
             throw new Error(`This email is already registered as ${existingRole.role}. Please log in instead or contact HR to change your role.`);
