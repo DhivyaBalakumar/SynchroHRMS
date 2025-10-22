@@ -231,7 +231,7 @@ const Auth = () => {
             await supabase.functions.invoke('send-verification-email', {
               body: {
                 email,
-                verificationLink: `${window.location.origin}/`,
+                verificationLink: `${window.location.origin}/dashboard/${selectedRole}`,
                 userName: fullName,
               },
             });
@@ -240,11 +240,14 @@ const Auth = () => {
           }
 
           toast({
-            title: 'Account created!',
-            description: 'Welcome to SynchroHR.',
+            title: 'Account created successfully!',
+            description: `Welcome to SynchroHR! Redirecting to your ${selectedRole} dashboard...`,
           });
 
-          navigate(`/dashboard/${selectedRole}`);
+          // Wait for auth state to fully update before navigation
+          setTimeout(() => {
+            navigate(`/dashboard/${selectedRole}`, { replace: true });
+          }, 500);
         }
       }
     } catch (error: any) {

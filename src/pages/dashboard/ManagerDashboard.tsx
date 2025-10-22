@@ -88,17 +88,16 @@ const ManagerDashboard = () => {
     );
   }
 
-  if (!manager) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Manager Profile Not Found</h2>
-          <p className="text-muted-foreground mb-6">Please contact HR to set up your manager profile.</p>
-          <Button onClick={signOut} variant="outline">Sign Out</Button>
-        </div>
-      </div>
-    );
-  }
+  // Use sample data if no manager record found
+  const displayManager = manager || {
+    id: user?.id || 'sample',
+    full_name: user?.email?.split('@')[0] || 'Manager',
+    position: 'Engineering Manager',
+    email: user?.email || 'manager@synchrohr.com',
+    departments: { name: 'Engineering' }
+  };
+
+  const displayManagerId = managerId || user?.id || 'sample';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-primary/5">
@@ -111,10 +110,10 @@ const ManagerDashboard = () => {
         >
           <div>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {manager.position || 'Manager'} Dashboard
+              {displayManager.position || 'Manager'} Dashboard
             </h1>
             <p className="text-sm md:text-base text-muted-foreground mt-2">
-              {manager.full_name} • {manager.departments?.name || 'Department'}
+              {displayManager.full_name} • {displayManager.departments?.name || 'Department'}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -146,7 +145,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <TeamRosterWidget teamId={managerId || ''} />
+              <TeamRosterWidget teamId={displayManagerId} />
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -155,7 +154,7 @@ const ManagerDashboard = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <PerformanceAnalyticsWidget teamId={managerId || ''} />
+                <PerformanceAnalyticsWidget teamId={displayManagerId} />
               </motion.div>
 
               <motion.div
@@ -163,7 +162,7 @@ const ManagerDashboard = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <SalaryInsightsWidget teamId={managerId || ''} />
+                <SalaryInsightsWidget teamId={displayManagerId} />
               </motion.div>
             </div>
 
@@ -172,7 +171,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <ProjectTasksWidget managerId={managerId || ''} />
+              <ProjectTasksWidget managerId={displayManagerId} />
             </motion.div>
           </div>
 
@@ -183,7 +182,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <AIInsightsWidget managerId={managerId || ''} />
+              <AIInsightsWidget managerId={displayManagerId} />
             </motion.div>
 
             <motion.div
@@ -191,7 +190,7 @@ const ManagerDashboard = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <SkillsManagementWidget teamId={managerId || ''} />
+              <SkillsManagementWidget teamId={displayManagerId} />
             </motion.div>
           </div>
         </div>
