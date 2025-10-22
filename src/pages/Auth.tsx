@@ -36,7 +36,6 @@ const Auth = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [resetEmailSent, setResetEmailSent] = useState(false);
-  const [isSigningUp, setIsSigningUp] = useState(false);
 
   useEffect(() => {
     const mode = searchParams.get('mode');
@@ -47,27 +46,7 @@ const Auth = () => {
     if (role && roleOptions.find(r => r.value === role)) {
       setSelectedRole(role);
     }
-
-    // Redirect logged-in users to their dashboard (but not during active signup)
-    if (!isSigningUp) {
-      const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const { data: roleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (roleData?.role) {
-            navigate(`/dashboard/${roleData.role}`);
-          }
-        }
-      };
-      
-      checkSession();
-    }
-  }, [searchParams, navigate, isSigningUp]);
+  }, [searchParams]);
 
   const handleEmailBlur = () => {
     if (email) {
@@ -85,14 +64,14 @@ const Auth = () => {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
+    
     const validation = validateEmail(email);
     if (!validation.isValid) {
       setEmailError(validation.error || '');
-      setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -132,7 +111,6 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setEmailError('');
     setPasswordError('');
 
@@ -140,7 +118,6 @@ const Auth = () => {
     const emailValidation = validateEmail(email);
     if (!emailValidation.isValid) {
       setEmailError(emailValidation.error || '');
-      setLoading(false);
       return;
     }
 
@@ -149,7 +126,6 @@ const Auth = () => {
       const passwordValidation = validatePassword(password);
       if (!passwordValidation.isValid) {
         setPasswordError(passwordValidation.error || '');
-        setLoading(false);
         return;
       }
 
@@ -159,10 +135,11 @@ const Auth = () => {
           description: 'Please enter your full name',
           variant: 'destructive',
         });
-        setLoading(false);
         return;
       }
     }
+
+    setLoading(true);
 
     try {
       if (isLogin) {
@@ -188,9 +165,6 @@ const Auth = () => {
 
         navigate(`/dashboard/${userRole}`);
       } else {
-        // Set signup flag to prevent useEffect interference
-        setIsSigningUp(true);
-        
         // Sign up new user
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -205,7 +179,6 @@ const Auth = () => {
         });
 
         if (error) {
-          setIsSigningUp(false);
           if (error.message?.includes('already registered') || error.message?.includes('User already exists')) {
             throw new Error('This email is already registered. Please log in instead.');
           }
@@ -213,7 +186,6 @@ const Auth = () => {
         }
 
         if (!data.user) {
-          setIsSigningUp(false);
           throw new Error('Failed to create account. Please try again.');
         }
 
@@ -228,7 +200,6 @@ const Auth = () => {
           });
 
         if (roleError) {
-          setIsSigningUp(false);
           throw new Error(`Failed to assign ${selectedRole} role. Please try again.`);
         }
 
@@ -237,12 +208,7 @@ const Auth = () => {
           description: 'Account created successfully!',
         });
 
-        // Small delay to ensure role is committed
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Clear states and navigate
-        setLoading(false);
-        setIsSigningUp(false);
+        // Navigate to dashboard - AuthContext will handle the session
         navigate(`/dashboard/${selectedRole}`, { replace: true });
       }
     } catch (error: any) {
