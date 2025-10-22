@@ -26,6 +26,7 @@ import JobApplication from "./pages/public/JobApplication";
 import EmployeeList from "./pages/employees/EmployeeList";
 import AddEmployee from "./pages/employees/AddEmployee";
 import DepartmentManagement from "./pages/employees/DepartmentManagement";
+import OnboardingManagement from "./pages/employees/OnboardingManagement";
 import CandidateLogin from "./pages/interview/CandidateLogin";
 import InterviewPortal from "./pages/interview/InterviewPortal";
 import InterviewManagement from "./pages/recruitment/InterviewManagement";
@@ -194,6 +195,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredRole={['hr']}>
                     <DepartmentManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/employees/onboarding"
+                element={
+                  <ProtectedRoute requiredRole={['hr', 'admin']}>
+                    <OnboardingManagement />
                   </ProtectedRoute>
                 }
               />

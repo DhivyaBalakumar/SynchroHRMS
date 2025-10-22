@@ -782,6 +782,163 @@ export type Database = {
           },
         ]
       }
+      onboarding_documents: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          document_name: string
+          document_type: string
+          file_url: string | null
+          id: string
+          status: string
+          task_id: string | null
+          uploaded_at: string | null
+          workflow_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          document_name: string
+          document_type: string
+          file_url?: string | null
+          id?: string
+          status?: string
+          task_id?: string | null
+          uploaded_at?: string | null
+          workflow_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          document_name?: string
+          document_type?: string
+          file_url?: string | null
+          id?: string
+          status?: string
+          task_id?: string | null
+          uploaded_at?: string | null
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_documents_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "onboarding_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_documents_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "onboarding_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_tasks: {
+        Row: {
+          assigned_to: string | null
+          auto_trigger_days: number | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          order_index: number
+          priority: string
+          status: string
+          task_type: string
+          title: string
+          updated_at: string | null
+          workflow_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          auto_trigger_days?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          order_index?: number
+          priority?: string
+          status?: string
+          task_type: string
+          title: string
+          updated_at?: string | null
+          workflow_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          auto_trigger_days?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          order_index?: number
+          priority?: string
+          status?: string
+          task_type?: string
+          title?: string
+          updated_at?: string | null
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_tasks_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "onboarding_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_workflows: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          employee_id: string
+          id: string
+          progress_percentage: number
+          started_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          employee_id: string
+          id?: string
+          progress_percentage?: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          employee_id?: string
+          id?: string
+          progress_percentage?: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_workflows_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pipeline_audit_logs: {
         Row: {
           action: string
