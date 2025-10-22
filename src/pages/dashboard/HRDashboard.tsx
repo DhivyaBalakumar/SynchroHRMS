@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import ErrorBoundary from '@/lib/errorBoundary';
 import { 
   Users, 
   UserPlus, 
@@ -312,26 +311,10 @@ const HRDashboard = () => {
 
           <TabsContent value="interviews" className="space-y-6">
             {/* AI Interview Management Widget */}
-            <ErrorBoundary
-              fallback={
-                <Card className="p-6">
-                  <p className="text-muted-foreground">Unable to load interview widget</p>
-                </Card>
-              }
-            >
-              <AIInterviewWidget />
-            </ErrorBoundary>
+            <AIInterviewWidget />
 
             {/* Interview Analysis Reports */}
-            <ErrorBoundary
-              fallback={
-                <Card className="p-6">
-                  <p className="text-muted-foreground">Unable to load interview reports</p>
-                </Card>
-              }
-            >
-              <InterviewReportsSection />
-            </ErrorBoundary>
+            <InterviewReportsSection />
 
             {/* Quick Actions */}
             <Card className="p-6">
