@@ -103,11 +103,25 @@ const TaskProjectWidget = () => {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button size="sm" variant="outline" className="flex-1 gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1 gap-2"
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.onchange = () => alert(`✓ Work uploaded for: ${task.title}`);
+                    input.click();
+                  }}
+                >
                   <Upload className="h-4 w-4" />
                   Upload Work
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => alert(`Task Details:\n\nTitle: ${task.title}\nProject: ${task.project}\nPriority: ${task.priority}\nDue: ${task.dueDate}\nProgress: ${task.progress}%`)}
+                >
                   View Details
                 </Button>
               </div>

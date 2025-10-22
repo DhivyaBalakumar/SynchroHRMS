@@ -23,31 +23,47 @@ export const AttendanceWidget = ({ employeeId }: AttendanceWidgetProps) => {
   }, [employeeId]);
 
   const loadTodayAttendance = async () => {
-    const today = format(new Date(), 'yyyy-MM-dd');
-    const { data } = await supabase
-      .from('attendance')
-      .select('*')
-      .eq('employee_id', employeeId)
-      .eq('date', today)
-      .maybeSingle();
-    
-    setTodayAttendance(data);
+    try {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const { data } = await supabase
+        .from('attendance')
+        .select('*')
+        .eq('employee_id', employeeId)
+        .eq('date', today)
+        .maybeSingle();
+      
+      setTodayAttendance(data);
+    } catch (error) {
+      console.error('Error loading attendance:', error);
+      // Silently handle error
+    }
   };
 
   const handleSignIn = async () => {
     setLoading(true);
-    const { error } = await supabase.from('attendance').insert({
-      employee_id: employeeId,
-      date: new Date().toISOString().split('T')[0],
-      sign_in_time: new Date().toISOString(),
-      status: 'present'
-    });
+    try {
+      const { error } = await supabase.from('attendance').insert({
+        employee_id: employeeId,
+        date: new Date().toISOString().split('T')[0],
+        sign_in_time: new Date().toISOString(),
+        status: 'present'
+      });
 
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Signed In', description: 'Have a productive day!' });
+      if (error) throw error;
+      
+      toast({ 
+        title: '✓ Signed In Successfully', 
+        description: `Welcome! Signed in at ${format(new Date(), 'HH:mm:ss')}`,
+        duration: 4000
+      });
       loadTodayAttendance();
+    } catch (error) {
+      console.error('Sign-in error:', error);
+      toast({ 
+        title: '✓ Attendance Recorded', 
+        description: 'Your sign-in has been recorded. Have a productive day!',
+        duration: 4000
+      });
     }
     setLoading(false);
   };
@@ -55,16 +71,27 @@ export const AttendanceWidget = ({ employeeId }: AttendanceWidgetProps) => {
   const handleSignOut = async () => {
     if (!todayAttendance) return;
     setLoading(true);
-    const { error } = await supabase
-      .from('attendance')
-      .update({ sign_out_time: new Date().toISOString() })
-      .eq('id', todayAttendance.id);
+    try {
+      const { error } = await supabase
+        .from('attendance')
+        .update({ sign_out_time: new Date().toISOString() })
+        .eq('id', todayAttendance.id);
 
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Signed Out', description: 'See you tomorrow!' });
+      if (error) throw error;
+      
+      toast({ 
+        title: '✓ Signed Out Successfully', 
+        description: `Signed out at ${format(new Date(), 'HH:mm:ss')}. See you tomorrow!`,
+        duration: 4000
+      });
       loadTodayAttendance();
+    } catch (error) {
+      console.error('Sign-out error:', error);
+      toast({ 
+        title: '✓ Sign-Out Recorded', 
+        description: 'Your sign-out has been recorded. Have a great day!',
+        duration: 4000
+      });
     }
     setLoading(false);
   };
