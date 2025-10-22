@@ -250,13 +250,11 @@ const Auth = () => {
 
           toast({
             title: 'Account created successfully!',
-            description: `Welcome to SynchroHR! Opening your ${selectedRole} dashboard...`,
+            description: `Welcome to SynchroHR!`,
           });
 
-          // Use window.location for full page reload to ensure auth state is properly set
-          setTimeout(() => {
-            window.location.href = `/dashboard/${selectedRole}`;
-          }, 1500);
+          // Navigate immediately using react-router
+          navigate(`/dashboard/${selectedRole}`, { replace: true });
         }
       }
     } catch (error: any) {
