@@ -228,6 +228,9 @@ const Auth = () => {
           description: 'Account created successfully!',
         });
 
+        // Clear loading state before navigation
+        setLoading(false);
+        
         // Navigate to dashboard
         navigate(`/dashboard/${selectedRole}`, { replace: true });
       }
