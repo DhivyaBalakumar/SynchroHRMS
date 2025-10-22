@@ -94,7 +94,7 @@ SynchroHR is an **AI‑powered Human Resource Management System** designed for m
 | Frontend        | React + TypeScript + Vite         |
 | Styling         | Tailwind CSS + shadcn/ui          |
 | Backend         | Supabase (Auth, DB, Edge Functions)|
-| AI Layer        | Lovable AI API, OpenAI-compatible |
+| AI Layer        | OpenAI-compatible                 |
 | Video           | WebRTC / Video APIs for interviews |
 | Email           | Resend API                        |
 | Hosting         | Vercel                            |
