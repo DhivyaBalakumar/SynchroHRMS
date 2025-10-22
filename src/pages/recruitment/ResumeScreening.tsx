@@ -13,7 +13,8 @@ import {
   Star,
   TrendingUp,
   Filter,
-  Video
+  Video,
+  Brain
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -123,6 +124,66 @@ export const ResumeScreening = () => {
     } finally {
       setProcessing(null);
     }
+  };
+
+  const runBulkAIScreening = async () => {
+    const pendingResumes = resumes.filter(r => 
+      r.screening_status === 'pending' && r.source === 'real'
+    );
+
+    if (pendingResumes.length === 0) {
+      toast({
+        title: 'No Pending Resumes',
+        description: 'There are no real pending resumes to screen.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setProcessing('bulk');
+    let processed = 0;
+    let selected = 0;
+    let rejected = 0;
+    let failed = 0;
+
+    toast({
+      title: 'Bulk AI Screening Started',
+      description: `Processing ${pendingResumes.length} applicants...`,
+    });
+
+    for (const resume of pendingResumes) {
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-resume-screening', {
+          body: {
+            resume_id: resume.id,
+            job_role_id: resume.job_role_id,
+          },
+        });
+
+        if (error) throw error;
+
+        processed++;
+        if (data.status === 'selected') {
+          selected++;
+        } else {
+          rejected++;
+        }
+
+        // Small delay to avoid overwhelming the system
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error: any) {
+        console.error(`Failed to screen resume ${resume.id}:`, error);
+        failed++;
+      }
+    }
+
+    setProcessing(null);
+    loadData();
+
+    toast({
+      title: 'Bulk Screening Complete',
+      description: `Processed: ${processed} | Selected: ${selected} | Rejected: ${rejected} | Failed: ${failed}`,
+    });
   };
 
   const handleManualDecision = async (resumeId: string, decision: 'selected' | 'rejected') => {
@@ -252,12 +313,32 @@ export const ResumeScreening = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+      <div className="mb-8 flex justify-between items-start">
+        <div>
           <h1 className="text-4xl font-bold mb-2">Resume Screening</h1>
           <p className="text-muted-foreground">
             Fully automated AI-driven screening & evaluation
           </p>
         </div>
+        <Button 
+          onClick={runBulkAIScreening}
+          disabled={processing !== null}
+          size="lg"
+          className="gap-2"
+        >
+          {processing === 'bulk' ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <Brain className="h-4 w-4" />
+              Run AI Bulk Screening
+            </>
+          )}
+        </Button>
+      </div>
 
         <div className="mb-6 flex gap-4 items-center">
           <div className="flex-1">
