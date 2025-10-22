@@ -46,14 +46,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (session?.user) {
           setTimeout(async () => {
             try {
-              const { data: roles } = await supabase
+              const { data: roles, error } = await supabase
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', session.user.id)
-                .limit(1)
-                .single();
+                .maybeSingle();
               
-              setUserRole(roles?.role ?? null);
+              if (error) {
+                console.error('Error fetching user role:', error);
+                setUserRole(null);
+              } else {
+                setUserRole(roles?.role ?? null);
+              }
             } catch (error) {
               console.error('Error fetching user role:', error);
               setUserRole(null);
@@ -75,9 +79,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .from('user_roles')
           .select('role')
           .eq('user_id', session.user.id)
-          .limit(1)
-          .single()
-          .then(({ data: roles }) => {
+          .maybeSingle()
+          .then(({ data: roles, error }) => {
+            if (error) {
+              console.error('Error fetching user role:', error);
+            }
             setUserRole(roles?.role ?? null);
             setLoading(false);
           });
